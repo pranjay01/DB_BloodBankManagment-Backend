@@ -7,7 +7,7 @@ use Blood_Donation_Project;
 CREATE TABLE OPERATOR
 (
 Operator_id INT NOT NULL,
-Name VARCHAR(25),
+Name VARCHAR(25)  NOT NULL,
 Email VARCHAR(25) NOT NULL,
 Password VARCHAR(20) NOT NULL,
 Bbank_id INT NOT NULL
@@ -15,15 +15,15 @@ Bbank_id INT NOT NULL
 
 CREATE TABLE BLOOD_BANK (
 Bbank_id INT NOT NULL,
-Name VARCHAR(45),
+Name VARCHAR(45)  NOT NULL,
 Type VARCHAR(15),
 phone_no BIGINT NOT NULL CHECK (phone_no BETWEEN 1000000000 and 9999999999));
 
 create table BLOOD_DONATION_EVENT (
 Drive_id INT NOT NULL,
-Name VARCHAR(50) ,
+Name VARCHAR(45)  NOT NULL,
 -- YYYY-MM-DD
-Date_of_event DATE NOT NULL,
+Date_of_event DATETIME NOT NULL,
 Venue VARCHAR(50) NOT NULL,
 Operator_id INT );
 
@@ -39,23 +39,21 @@ Phone_no BIGINT NOT NULL CHECK (phone_no BETWEEN 1000000000 and 9999999999));
 CREATE TABLE BLOOD_STOCK (
   Br_id INT NOT NULL,
   Blood_group VARCHAR(3) NOT NULL,
-  Btype_Limits INT,
--- Doubt here????
-  Quantity INT default 0);
+  Btype_Limits INT DEFAULT 100);
 
 CREATE TABLE BRANCH(
 Br_id	INT NOT NULL,
 Br_Type	ENUM('Main Branch','Sub Branch') NOT NULL,
 Bbank_id INT NOT NULL,
-Street VARCHAR(20),
-City VARCHAR(20),
-Zip INT CHECK (Zip BETWEEN 10000 and 99999));
+Street VARCHAR(20) NOT NULL,
+City VARCHAR(20) NOT NULL,
+Zip INT NOT NULL CHECK (Zip BETWEEN 10000 and 99999) );
 
 CREATE TABLE BLOOD (
   Blood_id INT NOT NULL ,
   Blood_Group ENUM('O+','A+','B+','AB+','O-','A-','B-','AB-') NOT NULL,
   Br_id INT,
-  Donor_id INT NULL,
+  Donor_id INT ,
   -- Date format : 'YYYY-MM-DD'
   Donation_Date DATE NOT NULL,
   Date_of_Expiry DATE GENERATED ALWAYS AS (DATE_ADD(Donation_Date, INTERVAL 2 MONTH)) NOT NULL,
@@ -64,20 +62,20 @@ CREATE TABLE BLOOD (
 CREATE TABLE DONOR
 (
 Donor_id INT NOT NULL,
-Name VARCHAR(25),
+Name VARCHAR(25) NOT NULL,
 Blood_group ENUM('O+','A+','B+','AB+','O-','A-','B-','AB-') NOT NULL,
 Street VARCHAR(20),
 City VARCHAR(20),
 Zip INT CHECK (Zip BETWEEN 10000 and 99999),
-Paid_Unpaid BOOL,
-Notification_Subscription BOOL,
-Notification_Type ENUM('MAIL','MESSAGE') NOT NULL,
+Paid_Unpaid BOOL DEFAULT false,
+Notification_Subscription BOOL DEFAULT false,
+Notification_Type ENUM('MAIL','MESSAGE') ,
 Operator_id INT);
 
 Create table DONOR_EMAIL
 (
 Donor_id INT NOT NULL,
-Email_id INT NOT NULL);
+Email_id VARCHAR(25) NOT NULL);
 
 Create table AFFILIATED
 (
@@ -85,16 +83,16 @@ Donor_id INT NOT NULL,
 Br_id INT NOT NULL);
 
 CREATE TABLE DONOR_PHONE (
-  Phone_no INT NOT NULL CHECK (phone_no BETWEEN 1000000000 and 9999999999),
+  Phone_no BIGINT NOT NULL CHECK (phone_no BETWEEN 1000000000 and 9999999999),
   Donor_id INT NOT NULL);
 
 CREATE TABLE EMERGENCY_CONTACT_INFO (
-  Phone_no INT NOT NULL CHECK (phone_no BETWEEN 1000000000 and 9999999999),
+  Phone_no BIGINT NOT NULL CHECK (phone_no BETWEEN 1000000000 and 9999999999),
   Donor_id INT NOT NULL,
   Name VARCHAR(25) NULL);
 
 CREATE TABLE EMERGENCY_CONTACT_EMAIL (
-  Phone_no INT NOT NULL CHECK (phone_no BETWEEN 1000000000 and 9999999999),
+  Phone_no BIGINT NOT NULL CHECK (phone_no BETWEEN 1000000000 and 9999999999),
   Donor_id INT NOT NULL,
   Email_id VARCHAR(25) NOT NULL);
 
