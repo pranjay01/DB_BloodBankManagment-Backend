@@ -5,6 +5,8 @@ This project is for maintaining the city wise blood banks and adequate amount of
 
 Steps to push commits on gihub:
 
+https://www.computerhope.com/issues/ch001927.htm
+
 git add <file name> 
 	OR
 git add -A	{If many files have to be commited}
