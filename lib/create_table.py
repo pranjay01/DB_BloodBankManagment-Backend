@@ -25,8 +25,10 @@ if __name__ == '__main__':  # to not run code on import
     cursor.execute(create_table)
 
 
-    create_table = """ALTER TABLE BLOOD ADD CONSTRAINT Pk_Blood PRIMARY KEY AUTO_INCREMENT (Blood_id)"""
-    cursor.execute(create_table)
+    alter_table = """ALTER TABLE BLOOD ADD CONSTRAINT Pk_Blood PRIMARY KEY AUTO_INCREMENT (Blood_id)"""
+    cursor.execute(alter_table)
+    alter_table = """ALTER TABLE BLOOD MODIFY Blood_id INTEGER NOT NULL AUTO_INCREMENT """
+    cursor.execute(alter_table)
 
     #cursor.execute("INSERT INTO items VALUES ('test', 10.99)")
 
