@@ -1,0 +1,77 @@
+//@import '../../variables.scss';
+
+.loginpage {
+    
+    position: relative;
+    height: calc(100vh); 
+    .text-center{
+        
+        text-align: center;
+    }
+    img {
+        width: 100%;
+        object-fit: cover;
+        object-position: right;
+        height: 100%;
+    }
+     &::after { 
+        background-color: #3a3d42;
+        background-size: cover;
+        opacity: .25;
+        position: fixed;
+        transform: translateZ(0);
+    //     background: $theme-datrk-color;
+    //     background: -moz-linear-gradient(-45deg, $theme-datrk-color 0%, $theme-datrk-color 100%);
+    //     background: -webkit-gradient(left top, right bottom, color-stop(0%, $theme-datrk-color), color-stop(100%, $theme-datrk-color));
+    //     background: -webkit-linear-gradient(-45deg, $theme-datrk-color 0%,$theme-datrk-color 100%);
+    //     background: -o-linear-gradient(-45deg, $theme-datrk-color 0%, $theme-datrk-color 100%);
+    //     background: -ms-linear-gradient(-45deg,$theme-datrk-color 0%, $theme-datrk-color 100%);
+    //     background: linear-gradient(135deg, $theme-datrk-color 0%, $theme-datrk-color 100%);
+    //     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#009ccb', endColorstr='#2078d6', GradientType=1 );
+    //     content: "";
+    //     position: absolute;
+    //     height: 100%;
+    //     width: 100%;
+    //     display: block;
+    //     left: 0;
+    //     right: 0;
+    //     top: 0;
+    //     bottom: 0; 
+    }
+    .commonbtn {
+        width: 100%; 
+        box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+        -webkit-box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+        -o-box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+        -moz-box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+    }
+    form {
+        position: absolute;
+        border-radius: 10px;
+
+        top: 50%;
+        left: 50%;
+        margin-right: -50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        max-width:300px;
+        background-color: #fff; 
+        z-index: 1; 
+
+        .maintitle {
+            border-radius: 10px;
+        width: 100%;
+            padding: 15px 15px 10px 15px;
+            background-color: #fff;
+            box-sizing: border-box;
+            color: #000;
+            margin-bottom: 0;
+            border-bottom: none;
+        } 
+
+        .loginforminn {
+            padding:0px  15px 20px 15px;
+            border:none;
+        }
+    }
+}
