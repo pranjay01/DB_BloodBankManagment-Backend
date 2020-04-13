@@ -108,13 +108,13 @@ CREATE TABLE DBA_LOGIN_CREDENTIALS (
 
 -- Private keys
 ALTER TABLE OPERATOR
-ADD CONSTRAINT PK_Operator PRIMARY KEY AUTO_INCREMENT (Operator_id);
+ADD CONSTRAINT PK_Operator PRIMARY KEY (Operator_id);
 
 ALTER TABLE BLOOD_BANK
-ADD CONSTRAINT PK_Blood_Bank PRIMARY KEY AUTO_INCREMENT (Bbank_id);
+ADD CONSTRAINT PK_Blood_Bank PRIMARY KEY (Bbank_id);
 
 ALTER TABLE BLOOD_DONATION_EVENT
-ADD CONSTRAINT PK_Event PRIMARY KEY AUTO_INCREMENT (Drive_id);
+ADD CONSTRAINT PK_Event PRIMARY KEY (Drive_id);
 
 ALTER TABLE NOTIFIED_BY
 ADD CONSTRAINT PK_Notify_By PRIMARY KEY (Operator_id,Br_id);
@@ -126,13 +126,13 @@ ALTER TABLE BLOOD_STOCK
 ADD CONSTRAINT PK_stock PRIMARY KEY (Br_id, Blood_group);
 
 ALTER TABLE BRANCH
-ADD CONSTRAINT PK_Branch PRIMARY KEY AUTO_INCREMENT (Br_id);
+ADD CONSTRAINT PK_Branch PRIMARY KEY (Br_id);
 
 ALTER TABLE BLOOD
-ADD CONSTRAINT Pk_Blood PRIMARY KEY AUTO_INCREMENT (Blood_id);
+ADD CONSTRAINT Pk_Blood PRIMARY KEY (Blood_id);
 
 ALTER TABLE DONOR
-ADD CONSTRAINT Pk_Donor PRIMARY KEY AUTO_INCREMENT (Donor_id);
+ADD CONSTRAINT Pk_Donor PRIMARY KEY (Donor_id);
 
 ALTER TABLE DONOR_EMAIL
 ADD CONSTRAINT PK_Donor_Email PRIMARY KEY (Donor_id, Email_id);
@@ -151,7 +151,16 @@ ALTER TABLE EMERGENCY_CONTACT_EMAIL
 ADD CONSTRAINT PK_Contact_Email PRIMARY KEY (Email_id, Donor_id, Phone_no);
 
 ALTER TABLE DBA_LOGIN_CREDENTIALS
-ADD CONSTRAINT PK_Dba PRIMARY KEY AUTO_INCREMENT (DBA_id) ;
+ADD CONSTRAINT PK_Dba PRIMARY KEY (DBA_id) ;
+
+
+-- AUTOINCREMENT constraints
+ALTER TABLE BLOOD MODIFY Blood_id INTEGER NOT NULL AUTO_INCREMENT;
+ALTER TABLE BLOOD_BANK MODIFY Bbank_id INTEGER NOT NULL AUTO_INCREMENT;
+ALTER TABLE BLOOD_DONATION_EVENT MODIFY Drive_id INTEGER NOT NULL AUTO_INCREMENT;
+ALTER TABLE BRANCH MODIFY Br_id INTEGER NOT NULL AUTO_INCREMENT;
+ALTER TABLE DONOR MODIFY Donor_id INTEGER NOT NULL AUTO_INCREMENT;
+ALTER TABLE DBA_LOGIN_CREDENTIALS MODIFY DBA_id INTEGER NOT NULL AUTO_INCREMENT;
 
 
 
@@ -259,24 +268,47 @@ ADD FOREIGN KEY (Donor_id,Phone_no)
 
 -- STORED PROCEDURE to get branch and BloodGroup wise stock details, 
 
-USE Blood_Donation_Project;
-DROP procedure IF EXISTS list_branch_stocks;
-
 DELIMITER $$
 USE Blood_Donation_Project $$
-CREATE PROCEDURE list_branch_stocks (
-IN Branch_id INT,
-IN Blood_Grp VARCHAR(5)
-) 
+CREATE PROCEDURE branch_wise_stock (IN bnk_id INT)
 BEGIN
-select Br_id, Blood_Group, count(Blood_id) as Count
-from BLOOD
-group by (Br_id, Blood_Group)
-having Br_id=Branch_id and Blood_Group=Blood_Grp;
+SELECT BLOOD.Br_id,Br_Type, count(Blood_id) as Blood_Unit_Count
+from BLOOD join BRANCH on (BRANCH.Br_id=BLOOD.Br_id AND Bbank_id=bnk_id AND Date_of_Expiry > CURDATE())
+group by BLOOD.Br_id;
 END$$
 
 DELIMITER ;
 
+
+
+DELIMITER $$
+USE Blood_Donation_Project $$
+CREATE PROCEDURE branch_stock (IN brnc_id INT) 
+BEGIN
+SELECT Blood_Group, count(Blood_id) as Blood_Unit_Count
+from BLOOD 
+where Date_of_Expiry > CURDATE()
+group by Blood_Group;
+END$$
+
+DELIMITER ;
+
+
+
+DELIMITER $$
+USE Blood_Donation_Project $$
+CREATE PROCEDURE bloodbank_wise_stock () 
+BEGIN
+SELECT Bbank_id,Name as Blood_Bank_Name, count(Blood_id) as Blood_Unit_Count
+from BLOOD_BANK left join (
+SELECT Blood_id , BRANCH.Bbank_id as Bank_id
+from BRANCH left join BLOOD on 
+(BRANCH.Br_id=BLOOD.Br_id AND Date_of_Expiry > CURDATE())
+) as tmp on (tmp.Bank_id=BLOOD_BANK.Bbank_id)
+group by Bbank_id,Name;
+END$$
+
+DELIMITER ;
 
 -- Query for blood-Stock entity Quantity derived from blood entity 
 

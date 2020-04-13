@@ -1,27 +1,96 @@
 from flask import Flask,request, jsonify
-from blood import Blood
+from blood import Blood, BloodStock
+import json
 
 
 app = Flask(__name__)
 
 
+@app.route('/operator/blood', methods=['GET','POST','DELETE','PUT'])
 
-@app.route('/blood', methods=['GET','POST','DELETE','PUT'])
-def blood_table():
+#API function to insert new blood unit from donor
+#Required compulsory info, donor id, branch id
+def add_blood_unit():
+  
   if request.method == 'POST':
-
     data=request.get_json()
-    bloodUnit={
-        "spcl_attr" : data['spcl_attr'],
-        "bl_grp"    : data['bl_grp'],
-	      "br_id"     : data['br_id'],
-	      "dnr_id"    : data['dnr_id'],
-        
-    }
-    Blood.insert_blood(bloodUnit)
+    bloodUnit = json.loads(data)
+    response = Blood.insert_blood(bloodUnit)
+    return jsonify(response)
+  return jsonify({"status":400,"entry":"Incorrect Method call"})
+
+def return_blood_unit():
+  #API function to get blood unit information on one of the following basis
+  #Case 1: list branch wise blood unit count : required blood bank id
+  #Case 2: list blood group wise blood unit count of that particular branch : required branch id
+  #case 3: list all blood units info of a particular branch and blood group : required branchid and blood group
+  if request.method == 'GET':
+    data = request.get_json()
+    parameters = json.loads(data)
+    response = Blood.get_blood_units(parameters)
+    return jsonify(response)
+  return jsonify({"status":400,"entry":"Incorrect Method call"})
 
 
-  return jsonify({"blood_unit":bloodUnit})
+def update_blood_unit_info():
+  #API function to update blood unit information in 2 cases
+  #Case 1:Only Special attributes is updated. :required blood _id, special attributes value to update
+  #when 2:When transferring blood units from current branch to other branch, required 3 parameters
+  #1-target branch, 2-count of blood units to be transferred, 3-blood group
+  if request.method == 'PUT':
+    data = request.get_json()
+    parameters = json.loads(data)
+    response = Blood.upadate_blood_bank(parameters)
+    return jsonify(response)
+  return jsonify({"status":400,"entry":"Incorrect Method call"})
+
+
+def delete_blood_unit():
+  #API function to delete blood unit 
+  #Required parameter only blood id
+  if request.method == 'DELETE':
+    data = request.get_json()
+    bloodUnit = json.loads(data)
+    response = Blood.get_blood_units(bloodUnit)
+    return jsonify(response)
+  return jsonify({"status":400,"entry":"Incorrect Method call"})
+
+
+@app.route('/operator/blood_limt', methods=['PUT'])
+def update_limit():
+  data = request.get_json()
+  parameters = json.loads(data)
+  response = BloodStock.update_blood_stock_limit(parameters)
+  return jsonify(response)
+
+
+@app.route('/user/blood', methods=['GET'])
+def get_blood_unit_count_for_user():
+  data = request.get_json()
+  parameters = json.loads(data)
+  response = Blood.get_bloodunit_list_guest_user(parameters)
+  return jsonify(response)
+
+
+@app.route('/operator/expired_blood', methods=['GET','DELETE'])
+def get_expired_bloodUnits():
+  #return all the expired blood units of the blood bank of which operator belongs to
+  if request.method == 'GET':      
+    data = request.get_json()
+    parameters = json.loads(data)
+    response = Blood.get_expired_units(parameters)
+    return jsonify(response)
+  return jsonify({"status":400,"entry":"Incorrect Method call"})
+
+def delete_expired_bloodUnits():
+  if request.method == 'DELETE':      
+    data = request.get_json()
+    parameters = json.loads(data)
+    response = Blood.delete_expired_units(parameters)
+    return jsonify(response)
+  return jsonify({"status":400,"entry":"Incorrect Method call"})
+
+
 
 if __name__ == '__main__':
   app.run(port=5000)
