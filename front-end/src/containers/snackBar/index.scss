@@ -1,0 +1,22 @@
+.snackbar-container {
+  width: 25%;
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  z-index: 9999;
+
+  .success {
+    background-color: #d1f1e2;
+    border: 2px solid green;
+    border-radius: 6px;
+    padding: 10px;
+    margin:5px;
+  }
+  .fail {
+    background-color: #ecd4d9;
+    border: 2px solid #ad1f2c;
+    border-radius: 6px;
+    padding: 10px;
+    margin:5px;
+  }
+}
