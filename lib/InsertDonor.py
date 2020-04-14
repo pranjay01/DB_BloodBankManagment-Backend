@@ -3,7 +3,6 @@ from create_donor_table import get_connection
 
 
 class InsertInTable:
-
     @classmethod
     def donor(self, single_donor):
         db = get_connection('root', 'Parihar2019')

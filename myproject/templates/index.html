@@ -1,0 +1,40 @@
+{% extends 'base.html' %} 
+{% block head %} 
+<h1>Task Master</h1>
+{% endblock %}
+
+{% block body %}
+<div class="content">
+    <h1>Create Table</h1>
+    <table>
+         <tr>
+             <th>Task </th>
+             <th>Added</th>
+             <th>Actions</th>
+         </tr>
+         <td></td>
+         <td></td>
+         <td>
+             <a href="">Delete</a>
+             <br>
+             <a href="">Update</a>
+         </td>
+    </table>
+    <form action="/branch" method="POST">
+        <label for="branch_ID">Branch ID:</label><br>
+        <input type="text" name="branch_ID" id="branch_ID"><br>
+        <label for="branch_Type">Branch Type:</label><br>
+        <input type="text" name="branch_Type" id="branch_Type"><br>
+        <label for="branch_Type">Branch Street:</label><br>
+        <input type="text" name="branch_Bbank" id="branch_Bbank"><br>
+        <label for="branch_Type">Blood Bank:</label><br>
+        <input type="text" name="branch_Street" id="branch_Street"><br>
+        <label for="branch_Type">Branch City:</label><br>
+        <input type="text" name="branch_City" id="branch_City"><br>
+        <label for="branch_Type">Branch Zipcode:</label><br>
+        <input type="text" name="branch_Zip" id="branch_Zipcode"><br>
+        <input type="submit" value="Add Task">
+    </form>
+</div>
+{% endblock %} 
+
