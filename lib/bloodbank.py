@@ -1,7 +1,5 @@
 import mysql.connector as mysql
-from create_table import get_connection
-
-
+from create_bloodbank import get_connection
 
 class Bloodbank:
 
