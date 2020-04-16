@@ -23,7 +23,7 @@ class Bloodbank:
         db=get_connection()
         cursor = db.cursor()
 
-        delete_query=f"DELETE FROM DONOR_PHONE WHERE Bbank_id = '{bloodbank['Bbank_id']}'"
+        delete_query=f"DELETE FROM BLOOD_BANK WHERE Bbank_id = '{bloodbank['Bbank_id']}'"
         try:
             cursor.execute(delete_query)
             db.commit()
