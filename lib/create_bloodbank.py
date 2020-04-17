@@ -1,28 +1,10 @@
 # Creeating table for bloodbak a, seeting primary key and auto-increment constraint
 import mysql.connector as mysql
 from mysql.connector import errorcode
+from connection import get_connection
 
 
-def get_connection():
-    try:
 
-        db = mysql.connect(
-        host = "localhost",
-        user = "root",
-        passwd = "P@ssw0rD",
-        database = "Blood_Donation_Project"
-        )
-    except mysql.Error as err:
-        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-            print("Incorrect usernasme or password")
-            #return ("error token : ")
-        elif err.errno == errorcode.ER_BAD_DB_ERROR:
-            print("Database does not exist")
-            #return ("error token : ")
-        else:
-            print(err)
-            #return ("error token : ")
-    return db
 
 create_blood_bank_query = """CREATE TABLE IF NOT EXISTS BLOOD_BANK (Bbank_id INT NOT NULL ,
                               Name VARCHAR(45)  NOT NULL, 

@@ -20,7 +20,19 @@ branch_stock="""CREATE PROCEDURE branch_stock (IN brnc_id INT)
                 group by Blood_Group;
                 END"""
 
-bloodbank_wise_stock="""CREATE PROCEDURE bloodbank_wise_stock () 
+bloodbank_wise_stock="""CREATE PROCEDURE bloodbank_wise_stock (IN bnk_id INT) 
+                        BEGIN
+                        SELECT Bbank_id,Name as Blood_Bank_Name, count(Blood_id) as Blood_Unit_Count
+                        from BLOOD_BANK left join (
+                        SELECT Blood_id , BRANCH.Bbank_id as Bank_id
+                        from BRANCH left join BLOOD on 
+                        (BRANCH.Br_id=BLOOD.Br_id AND Date_of_Expiry > CURDATE())
+                        ) as tmp on (tmp.Bank_id=BLOOD_BANK.Bbank_id)
+                        group by Bbank_id,Name
+                        having Bbank_id=bnk_id;
+                        END"""
+
+particular_bloodbank_stock="""CREATE PROCEDURE bloodbank_wise_stock () 
                         BEGIN
                         SELECT Bbank_id,Name as Blood_Bank_Name, count(Blood_id) as Blood_Unit_Count
                         from BLOOD_BANK left join (
@@ -49,6 +61,7 @@ if __name__ == '__main__':  # to not run code on import
     create_procedure(cursor,branch_wise_stock)
     create_procedure(cursor,branch_stock)
     create_procedure(cursor,bloodbank_wise_stock)
+    create_procedure(cursor,particular_bloodbank_stock)
 
 
     db.commit()
