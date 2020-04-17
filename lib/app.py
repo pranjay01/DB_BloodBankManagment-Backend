@@ -1,10 +1,41 @@
 from flask import Flask,request, jsonify
 from blood import Blood, BloodStock
 import json
+<<<<<<< HEAD
 
+=======
+from flask_jwt import JWT, jwt_required
+from security import authenticate, identity
+from user import Operator
+from datetime import timedelta
+>>>>>>> b7cc422944a25f3e8e079a1a2706535d792042bc
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'dbProject'
+app.config['JWT_AUTH_URL_RULE'] = '/operator_login'
+app.config['JWT_EXPIRATION_DELTA'] = timedelta(seconds=3000)
+app.config['JWT_AUTH_USERNAME_KEY'] = 'Email'
+app.config['JWT_AUTH_PASSWORD_KEY'] = 'Password'
 
+
+jwt = JWT(app, authenticate, identity)
+
+#Operator login and authentication token generation
+@jwt.auth_response_handler
+def customized_response_handler(access_token, identity):
+
+  return jsonify({
+                  'access_token': access_token.decode('utf-8'),
+                  'Operator_id': identity.id
+                   })
+
+
+#  @jwt.error_handler
+#  def customized_error_handler(error):
+#    return jsonify({
+#                        'message': error.description,
+#                        'code': error.status_code
+#                    }), error.status_code
 
 @app.route('/operator/blood', methods=['GET','POST','DELETE','PUT'])
 
