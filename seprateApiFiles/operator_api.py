@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from operator import Operator
+#from operator import Operator
 import json
 
 app = Flask(__name__)
@@ -42,27 +42,27 @@ def blood_donation_event_table():
     if request.method == 'GET':
         blood_donation_event_entry = request.get_json()
         # blood_donation_event_entry = json.loads(data)
-        response = Blood_donation_event.get_blood_donation_event(blood_donation_event_entry)
+        #response = Blood_donation_event.get_blood_donation_event(blood_donation_event_entry)
         return jsonify(response)
 
     if request.method == 'POST':
         blood_donation_event_entry = request.get_json()
         # blood_donation_event_entry = json.loads(data)
-        response = Blood_donation_event.insert_blood_donation_event(blood_donation_event_entry)
+        #response = Blood_donation_event.insert_blood_donation_event(blood_donation_event_entry)
         return jsonify(response)
     # return jsonify({"status":400,"entry":"Incorrect Method call"})
 
     if request.method == 'PUT':
         blood_donation_event_entry = request.get_json()
         # blood_donation_event_entry = json.loads(data)
-        response = Blood_donation_event.update_blood_donation_event(blood_donation_event_entry)
+        #response = Blood_donation_event.update_blood_donation_event(blood_donation_event_entry)
         return jsonify(response)
     # return jsonify({"status":400,"entry":"Incorrect Method call"})
 
     if request.method == 'DELETE':
         blood_donation_event_entry = request.get_json()
         # operator_entry = json.loads(data)
-        response = Blood_donation_event.delete_blood_donation_event(operator_blood_donation_event)
+        #response = Blood_donation_event.delete_blood_donation_event(operator_blood_donation_event)
         return jsonify(response)
     # return jsonify({"status":400,"entry":"Incorrect Method call"})
 

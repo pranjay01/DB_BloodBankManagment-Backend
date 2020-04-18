@@ -60,7 +60,7 @@ class Operator:
             cursor.execute(query,(new_operator['Name'], 
             new_operator['Email'],passwrd, new_operator['Bbank_id']))
             db.commit()
-            return {"message": "User created successfully."}, 201
+            return {"message": "Operator created successfully."}, 201
         except mysql.Error as err:
             print("Internal Server error: {}".format(err))
             return {"status": 500, "message": str(err)}

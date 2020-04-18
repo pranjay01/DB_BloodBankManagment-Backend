@@ -7,7 +7,7 @@ from user import Operator
 from datetime import timedelta
 from bloodbank import Bloodbank
 from InsertDonor import InsertInTable, UpdateInTable, SelectInTable,DeleteInTable
-
+from operator import Operators, Blood_donation_event
 
 
 app = Flask(__name__)
@@ -45,7 +45,7 @@ def create_operator():
   new_operator=request.get_json()
   #new_operator = json.loads(data)
   if Operator.find_by_email(new_operator['Email']):
-    return jsonify({"message":"A user with same name already exists"}), 400
+    return jsonify({"status":400,"message":"A user with same name already exists"})
   else:
     response= Operator.register(new_operator)
     return jsonify(response)
@@ -230,7 +230,7 @@ def select_donor():
         return jsonify(response)
     return jsonify({"status":400,"entry":"Incorrect Method call"})
 
-
+@jwt_required
 @app.route('/bloodbank/donor/econtact',methods=['GET','POST','DELETE','PUT'])
 def add_contact():
     if request.method == 'POST':
@@ -240,7 +240,7 @@ def add_contact():
         return jsonify(response)
     return jsonify({"status":400,"entry":"Incorrect Method call"})
 
-
+@jwt_required
 @app.route('/bloodbank/donor/econtact/update',methods=['GET','POST','DELETE','PUT'])
 def update_contact():
     if request.method == 'PUT':
@@ -250,7 +250,7 @@ def update_contact():
         return jsonify(response)
     return jsonify({"status":400,"entry":"Incorrect Method call"})
 
-
+@jwt_required
 @app.route('/bloodbank/donor/econtact/delete',methods=['GET','POST','DELETE','PUT'])
 def delete_contact():
     if request.method == 'DELETE':
@@ -271,6 +271,79 @@ def select_contact():
     return jsonify({"status":400,"entry":"Incorrect Method call"})
 
 
+############  APIs for Operator related Table###################################
+
+
+################################################################################
+
+@app.route('/operator', methods=['GET', 'DELETE', 'PUT'])
+def operator_table():
+
+  #Get list of all operators
+  if request.method == 'GET':
+      operator_entry = request.get_json()
+      response = Operators.get_operator(operator_entry)
+      return jsonify(response)
+
+  if request.method == 'PUT':
+      operator_entry = request.get_json()
+      response = Operators.update_operator(operator_entry)
+      return jsonify(response)
+  # return jsonify({"status":400,"entry":"Incorrect Method call"})
+
+  if request.method == 'DELETE':
+      operator_entry = request.get_json()
+      response = Operators.delete_operator(operator_entry)
+      return jsonify(response)
+      # return jsonify({"status":400,"entry":"Incorrect Method call"})
+
+  return jsonify({"status": 400, "entry": "Incorrect Method call"})
+
+
+
+
+############  APIs for Blood DOnation related Table###################################
+
+
+################################################################################
+
+
+@app.route('/blood_donation_event', methods=['GET', 'POST', 'DELETE', 'PUT'])
+def blood_donation_event_table():
+
+  if request.method == 'GET':
+      blood_donation_event_entry = request.get_json()
+      # blood_donation_event_entry = json.loads(data)
+      response = Blood_donation_event.get_blood_donation_event(blood_donation_event_entry)
+      return jsonify(response)
+
+  if request.method == 'POST':
+      blood_donation_event_entry = request.get_json()
+      # blood_donation_event_entry = json.loads(data)
+      response = Blood_donation_event.insert_blood_donation_event(blood_donation_event_entry)
+      return jsonify(response)
+  # return jsonify({"status":400,"entry":"Incorrect Method call"})
+
+  if request.method == 'PUT':
+      blood_donation_event_entry = request.get_json()
+      # blood_donation_event_entry = json.loads(data)
+      response = Blood_donation_event.update_blood_donation_event(blood_donation_event_entry)
+      return jsonify(response)
+  # return jsonify({"status":400,"entry":"Incorrect Method call"})
+
+  if request.method == 'DELETE':
+      blood_donation_event_entry = request.get_json()
+      event = request.get_json()
+      response = Blood_donation_event.delete_blood_donation_event(event)
+      return jsonify(response)
+  # return jsonify({"status":400,"entry":"Incorrect Method call"})
+
+  return jsonify({"status": 400, "entry": "Incorrect Method call"})
+
+@app.route('/<operator_id>/blood_donation_event/all', methods=['GET', 'POST', 'DELETE', 'PUT'])
+def list_all_event_list_of_operator(operator_id):
+  response = Blood_donation_event.get_operator_vent_list(operator_id)
+  return jsonify(response)
 
 
 if __name__ == '__main__':
