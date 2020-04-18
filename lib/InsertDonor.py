@@ -1,53 +1,57 @@
 import mysql.connector as mysql
-from create_donor_table import get_connection
+from connection import get_connection
+from user import Operator
 
 
 class InsertInTable:
     @classmethod
     def donor(self, single_donor):
-        db = get_connection('root', 'Parihar2019')
+        db = get_connection()
         cursor = db.cursor()
 
-        insert_query = """INSERT INTO DONOR
-        (Donor_id,Name,Blood_group,Street,City,Zip,Paid_Unpaid,Notification_Subscription,Notification_Type,Operator_id)
-        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
-        t = (single_donor['Donor_id'], single_donor['Name'], single_donor['Blood_group'],
-             single_donor['Street'], single_donor['City'], single_donor['Zip'], single_donor['Paid_Unpaid'],
-             single_donor['Notification_Subscription'], single_donor['Notification_Type'],
-             single_donor['Operator_id'])
-        try:
-            cursor.execute(insert_query, t)
-            db.commit()
-        except mysql.Error as err:
-            print("Failed to add entry: {}".format(err))
-            return {"status": 400, "entry": str(err)}
-
-        t = tuple(single_donor['Emails'].values())
-        insert_query = "INSERT INTO DONOR_EMAIL (Donor_id,Email_id)  VALUES (%s,%s)"
-        for x in t:
+        if Operator.check_branch_id(single_donor["Operator_id"],single_donor["Br_id"]):
+            insert_query = """INSERT INTO DONOR
+            (Donor_id,Name,Blood_group,Street,City,Zip,Paid_Unpaid,Notification_Subscription,Notification_Type,Operator_id)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
+            t = (single_donor['Donor_id'], single_donor['Name'], single_donor['Blood_group'],
+                single_donor['Street'], single_donor['City'], single_donor['Zip'], single_donor['Paid_Unpaid'],
+                single_donor['Notification_Subscription'], single_donor['Notification_Type'],
+                single_donor['Operator_id'])
             try:
-                cursor.execute(insert_query, (single_donor['Donor_id'], x))
+                cursor.execute(insert_query, t)
                 db.commit()
             except mysql.Error as err:
                 print("Failed to add entry: {}".format(err))
                 return {"status": 400, "entry": str(err)}
 
-        t = tuple(single_donor['Phones'].values())
-        insert_query = "INSERT INTO DONOR_PHONE (Donor_id,Phone_no)  VALUES (%s,%s)"
-        for x in t:
-            try:
-                cursor.execute(insert_query, (single_donor['Donor_id'], x))
-                db.commit()
-            except mysql.Error as err:
-                print("Failed to add entry: {}".format(err))
-                return {"status": 400, "entry": str(err)}
+            t = tuple(single_donor['Emails'].values())
+            insert_query = "INSERT INTO DONOR_EMAIL (Donor_id,Email_id)  VALUES (%s,%s)"
+            for x in t:
+                try:
+                    cursor.execute(insert_query, (single_donor['Donor_id'], x))
+                    db.commit()
+                except mysql.Error as err:
+                    print("Failed to add entry: {}".format(err))
+                    return {"status": 400, "message": str(err)}
 
-        db.close()
-        return {"status": 200, "entry": single_donor}
+            t = tuple(single_donor['Phones'].values())
+            insert_query = "INSERT INTO DONOR_PHONE (Donor_id,Phone_no)  VALUES (%s,%s)"
+            for x in t:
+                try:
+                    cursor.execute(insert_query, (single_donor['Donor_id'], x))
+                    db.commit()
+                except mysql.Error as err:
+                    print("Failed to add entry: {}".format(err))
+                    return {"status": 400, "message": str(err)}
+
+            db.close()
+            return {"status": 200, "donor": single_donor}
+        else:
+            return {"status": 401, "message": "Unauthorised Access"}
 
     @classmethod
     def donor_contact(self, single_donor):
-        db = get_connection('root', 'Parihar2019')
+        db = get_connection()
         cursor = db.cursor()
 
         insert_query = "INSERT INTO EMERGENCY_CONTACT_INFO (Phone_no,Donor_id,Name)  VALUES (%s,%s,%s)"
@@ -80,14 +84,14 @@ class UpdateInTable:
 
     @classmethod
     def donor(self, single_donor):
-        db = get_connection('root', 'Parihar2019')
+        db = get_connection()
         cursor = db.cursor()
         db.close()
         return {"status": 200, "entry": single_donor}
 
     @classmethod
     def donor_contact(self, single_donor):
-        db = get_connection('root', 'Parihar2019')
+        db = get_connection()
         cursor = db.cursor()
 
         db.close()
@@ -98,7 +102,7 @@ class DeleteInTable:
 
     @classmethod
     def donor(self, single_donor):
-        db = get_connection('root', 'Parihar2019')
+        db = get_connection()
         cursor = db.cursor()
         insert_query = f"DELETE FROM DONOR_PHONE WHERE Donor_id = '{single_donor['Donor_id']}'"
         try:
@@ -112,7 +116,7 @@ class DeleteInTable:
 
     @classmethod
     def donor_contact(self, single_donor):
-        db = get_connection('root', 'Parihar2019')
+        db = get_connection()
         cursor = db.cursor()
 
         try:
@@ -146,7 +150,7 @@ class SelectInTable:
 
     @classmethod
     def donor(self, single_donor):
-        db = get_connection('root', 'Parihar2019')
+        db = get_connection()
         cursor = db.cursor()
 
         try:
@@ -194,7 +198,7 @@ class SelectInTable:
 
     @classmethod
     def donor_contact(self, single_donor):
-        db = get_connection('root', 'Parihar2019')
+        db = get_connection()
         cursor = db.cursor()
 
         try:

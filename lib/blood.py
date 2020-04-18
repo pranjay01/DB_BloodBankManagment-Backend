@@ -1,5 +1,5 @@
 import mysql.connector as mysql
-from create_table import get_connection
+from connection import get_connection
 from datetime import datetime
 from user import Operator
 
@@ -31,7 +31,7 @@ class Blood:
 
                         return {"status":201, "message":"Bloodunit saved Successfully"}
                     except mysql.Error as err:
-                        print("Failed to add entry: {}".format(err))
+                        #print("Failed to add entry: {}".format(err))
                         return {"status": 500, "message": str(err)}
             except mysql.Error as err:
                 print("Internal Server error: {}".format(err))
@@ -48,8 +48,29 @@ class Blood:
     def get_blood_units(self,parameters,Operator_id):
         db=get_connection()
         cursor = db.cursor()
+        #return the total count of bolood in the blood bank
+        if parameters["case"] == 4:
+            if Operator.check_bankid(Operator_id,parameters["Bbank_id"]):
+                try:
+                    cursor.callproc('particular_bloodbank_stock',(parameters["Bbank_id"],))
+                    if cursor.rowcount == 0:
+                        return {"status":404, "message":"branch id or blood group wrong"}
+                    else:
+                        row = cursor.fetchone()
+                        blood_bank = {'Blood_Bank_Name':row[1], 'Blood_Unit_Count':row[2]}
+                        return {"status": 200, "result":blood_bank}
+
+                except mysql.Error as err:
+                    print("Internal Server error: {}".format(err))
+                    return {"get_blood_unitsstatus": 500, "message": str(err)}
+
+                finally:
+                    db.close()
+            else:
+                return {"status": 401, "message": "Unauthorised Access"}
         #return the list containing count of blood units in each branch of a particular bank
-        if parameters["case"] == 1:
+
+        elif parameters["case"] == 1:
             if Operator.check_bankid(Operator_id,parameters["Bbank_id"]):
                 try:
                     cursor.callproc('branch_wise_stock',(parameters["Bbank_id"],))
