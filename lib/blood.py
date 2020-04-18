@@ -13,7 +13,6 @@ class Blood:
     def insert_blood(self,bloodUnit,Operator_id):
         db=get_connection()
         cursor = db.cursor()
-
         if Operator.check_branch_id(Operator_id,bloodUnit["Br_id"]):       
             date=datetime.today().strftime('%Y-%m-%d')
             bloodGroup_query = "SELECT Blood_Group from DONOR WHERE Donor_id = %s"

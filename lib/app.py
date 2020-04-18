@@ -92,13 +92,12 @@ def bloodbank_table():
 
 #API function to insert new blood unit from donor
 #Required compulsory info, donor id, branch id
-@jwt_required()
-def add_blood_unit(Operator_id):
+def add_blood_unit():
   
   if request.method == 'POST':
-    bloodUnit=request.get_json()
-    #bloodUnit = json.loads(data)
-    response = Blood.insert_blood(bloodUnit,Operator_id)
+    data=request.get_json()
+    bloodUnit = json.loads(data)
+    response = Blood.insert_blood(bloodUnit)
     return jsonify(response)
 
 #@jwt_required()
@@ -122,9 +121,9 @@ def add_blood_unit(Operator_id):
   #when 2:When transferring blood units from current branch to other branch, required 3 parameters
   #1-target branch, 2-count of blood units to be transferred, 3-blood group
   if request.method == 'PUT':
-    parameters = request.get_json()
-    #parameters = json.loads(data)
-    response = Blood.upadate_blood_bank(parameters,Operator_id)
+    data = request.get_json()
+    parameters = json.loads(data)
+    response = Blood.upadate_blood_bank(parameters)
     return jsonify(response)
 
 
@@ -132,21 +131,18 @@ def add_blood_unit(Operator_id):
   #API function to delete blood unit 
   #Required parameter only blood id
   if request.method == 'DELETE':
-    bloodUnit = request.get_json()
-    #bloodUnit = json.loads(data)
-    response = Blood.delete_blood_unit(bloodUnit,Operator_id)
+    data = request.get_json()
+    bloodUnit = json.loads(data)
+    response = Blood.get_blood_units(bloodUnit)
     return jsonify(response)
-  return jsonify({"status":400,"message":"Incorrect Method call"})
+  return jsonify({"status":400,"entry":"Incorrect Method call"})
 
 
-#API to update the minimum limit of a particular blood goup 
-#in one of the operators corresponding branch
-@jwt_required()
-@app.route('/<Operator_id>/blood_limt', methods=['PUT'])
-def update_limit(Operator_id):
-  parameters = request.get_json()
-  #parameters = json.loads(data)
-  response = BloodStock.update_blood_stock_limit(parameters,Operator_id)
+@app.route('/operator/blood_limt', methods=['PUT'])
+def update_limit():
+  data = request.get_json()
+  parameters = json.loads(data)
+  response = BloodStock.update_blood_stock_limit(parameters)
   return jsonify(response)
 
 @jwt_required()
@@ -163,11 +159,11 @@ def get_expired_bloodUnits(Operator_id):
 #def delete_expired_bloodUnits(Operator_id):
   #delete all the expired blood units of that particular blood bank
   if request.method == 'DELETE':      
-    parameters = request.get_json()
-    #parameters = json.loads(data)
-    response = Blood.delete_expired_units(parameters,Operator_id)
+    data = request.get_json()
+    parameters = json.loads(data)
+    response = Blood.delete_expired_units(parameters)
     return jsonify(response)
-  return jsonify({"status":400,"message":"Incorrect Method call"})
+  return jsonify({"status":400,"entry":"Incorrect Method call"})
 
 
 

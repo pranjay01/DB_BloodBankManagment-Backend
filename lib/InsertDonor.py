@@ -4,7 +4,6 @@ from user import Operator
 
 
 class InsertInTable:
-
     @classmethod
     def donor(self, single_donor):
         db = get_connection()
