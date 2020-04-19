@@ -7,8 +7,7 @@ from user import Operator
 from datetime import timedelta
 from bloodbank import Bloodbank, BloodBankBranch
 from InsertDonor import InsertInTable, UpdateInTable, SelectInTable,DeleteInTable
-from operator import Operators, Blood_donation_event
-
+from operatorfile import Operators, Blood_donation_event
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'dbProject'
