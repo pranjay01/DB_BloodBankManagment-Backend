@@ -80,13 +80,13 @@ class Operator:
     def check_branch_id(self,Operator_id,branch_id):
         Operator_id=int(Operator_id)
         oprator = self.find_by_id(Operator_id)
-        selectQuery = "Select Br_id FROM BRANCH WHERE Bbank_id=%s"
+        selectQuery = "Select Bbank_id FROM BRANCH WHERE Br_id=%s"
         db=get_connection()
         cursor = db.cursor()
         try:
-            cursor.execute(selectQuery,(oprator.Bbank_id,))
+            cursor.execute(selectQuery,(branch_id,))
             row = cursor.fetchone()
-            if row and row[0]==branch_id:
+            if row and row[0]==oprator.Bbank_id:
                 return True
             else:
                 return None

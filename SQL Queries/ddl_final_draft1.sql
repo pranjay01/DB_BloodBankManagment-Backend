@@ -298,7 +298,7 @@ DELIMITER ;
 
 DELIMITER $$
 USE Blood_Donation_Project $$
-CREATE PROCEDURE bloodbank_wise_stock () 
+CREATE PROCEDURE bloodbank_wise_stock (IN bnk_id INT) 
 BEGIN
 SELECT Bbank_id,Name as Blood_Bank_Name, count(Blood_id) as Blood_Unit_Count
 from BLOOD_BANK left join (

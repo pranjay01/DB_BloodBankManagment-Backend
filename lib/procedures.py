@@ -16,7 +16,7 @@ branch_stock="""CREATE PROCEDURE branch_stock (IN brnc_id INT)
                 BEGIN
                 SELECT Blood_Group, count(Blood_id) as Blood_Unit_Count
                 from BLOOD 
-                where Date_of_Expiry > CURDATE()
+                where Br_id=brnc_id AND Date_of_Expiry > CURDATE()
                 group by Blood_Group;
                 END"""
 
