@@ -59,7 +59,7 @@ def bloodbank_table():
   # case 1: give list of all blood banks
   # case 2: give information of only 1 particular blood bank 
   if request.method == 'GET':
-        blood_bank_entry = request.args
+        blood_bank_entry = request.args.to_dict()
         response = Bloodbank.get_bloodbank(blood_bank_entry)
         return jsonify(response)
 
@@ -133,7 +133,7 @@ def add_blood_unit(Operator_id):
   #Case 3: list blood group wise blood unit count of that particular branch : required branch id
   #case 4: list all blood units info of a particular branch and blood group : required branchid and blood group
   if request.method == 'GET':
-    parameters = request.args
+    parameters = request.args.to_dict()
     #parameters = json.loads(data)
     response = Blood.get_blood_units(parameters,Operator_id)
     return jsonify(response)
@@ -178,7 +178,7 @@ def update_limit(Operator_id):
 def get_expired_bloodUnits(Operator_id):
   #return all the expired blood units of the blood bank of which operator belongs to
   if request.method == 'GET':      
-    parameters = request.args
+    parameters = request.args.to_dict()
     #parameters = json.loads(data)
     response = Blood.get_expired_units(parameters,Operator_id)
     return jsonify(response)
@@ -203,7 +203,7 @@ def get_expired_bloodUnits(Operator_id):
 ################################################################################
 @app.route('/guest_user/blood', methods=['GET'])
 def get_blood_unit_count_for_user():
-  parameters = request.args
+  parameters = request.args.to_dict()
   #parameters = json.loads(data)
   response = Blood.get_bloodunit_list_guest_user(parameters)
   return jsonify(response)
@@ -249,7 +249,7 @@ def delete_donor():
 def select_donor():
     if request.method == 'GET':
         #data = request.get_json()
-        single_donor = request.args
+        single_donor = request.args.to_dict()
         response = SelectInTable.donor(single_donor)
         return jsonify(response)
     return jsonify({"status":400,"entry":"Incorrect Method call"})
@@ -288,7 +288,7 @@ def delete_contact():
 @app.route('/bloodbank/donor/econtact',methods=['GET','POST','DELETE','PUT'])
 def select_contact():
     if request.method == 'GET':
-        data = request.args
+        data = request.args.to_dict()
         single_donor = json.loads(data)
         response = SelectInTable.donor(single_donor)
         return jsonify(response)

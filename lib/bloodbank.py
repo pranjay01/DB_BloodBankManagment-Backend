@@ -43,6 +43,7 @@ class Bloodbank:
         db=get_connection()
         cursor = db.cursor()
         # Get all the list f blood banks available and there info
+        bloodbank["case"] = int(bloodbank["case"])
         if bloodbank["case"] == 1:
             select_query="SELECT * FROM BLOOD_BANK"
             try:
@@ -59,6 +60,7 @@ class Bloodbank:
                 db.close()
         #when information of only particular blood bank is required    
         elif bloodbank["case"] == 2:
+            bloodbank['Bbank_id'] = int(bloodbank['Bbank_id'])
             get_query="SELECT * FROM BLOOD_BANK WHERE Bbank_id = %s"
             try:
                 cursor.execute(get_query,(bloodbank['Bbank_id'],))

@@ -1,5 +1,5 @@
 import mysql.connector as mysql
-from create_table import get_connection
+from connection import get_connection
 import base64
 
 
@@ -69,6 +69,7 @@ class Operator:
 
     @classmethod
     def check_bankid(self,Operator_id,Bbank_id):
+        Operator_id=int(Operator_id)
         oprator = self.find_by_id(Operator_id)
         if oprator and oprator.Bbank_id==Bbank_id:
             return True
@@ -77,6 +78,7 @@ class Operator:
 
     @classmethod
     def check_branch_id(self,Operator_id,branch_id):
+        Operator_id=int(Operator_id)
         oprator = self.find_by_id(Operator_id)
         selectQuery = "Select Br_id FROM BRANCH WHERE Bbank_id=%s"
         db=get_connection()
