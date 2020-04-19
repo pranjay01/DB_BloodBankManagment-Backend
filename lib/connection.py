@@ -18,7 +18,7 @@ def get_connection():
         # host = "bloodbankprod.cnlv0osh7hey.us-east-2.rds.amazonaws.com",
         # user = "root",
         # passwd = "bloodbank2020",
-        # database = "bloodbankprod",
+        # database = "Blood_Donation_Project",
         # port = 3306
         # )
     except mysql.Error as err:
