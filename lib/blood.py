@@ -119,7 +119,7 @@ class Blood:
 
                     if rows:
                         blood_count=[]
-                        for row in row:
+                        for row in rows:
                             blood_count.append({'Blood_Group':row[0], 'Blood_Unit_Count':row[1]})
 
                         return {"status": 200, "result":blood_count}
@@ -171,9 +171,10 @@ class Blood:
     def get_bloodunit_list_guest_user(self,parameters):
         #Return the list containing the count of blood units in each blood bank
         parameters["case"]=int(parameters["case"])
+        db=get_connection()
+        cursor = db.cursor()
         if parameters["case"] == 1:
-            db=get_connection()
-            cursor = db.cursor()
+
             try:
                 cursor.callproc('all_blood_bank_stock')
                 rows=[]
