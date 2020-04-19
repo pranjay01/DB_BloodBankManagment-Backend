@@ -369,6 +369,11 @@ def list_all_event_list_of_operator(operator_id):
   response = Blood_donation_event.get_operator_vent_list(operator_id)
   return jsonify(response)
 
+@app.route('/')
+def success():
+  return "Success"
+
 
 if __name__ == '__main__':
-  app.run(port=5000)
+  app.run(port=5000,debug=True)
+  
