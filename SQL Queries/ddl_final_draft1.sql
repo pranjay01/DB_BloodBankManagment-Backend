@@ -161,6 +161,7 @@ ALTER TABLE BLOOD_DONATION_EVENT MODIFY Drive_id INTEGER NOT NULL AUTO_INCREMENT
 ALTER TABLE BRANCH MODIFY Br_id INTEGER NOT NULL AUTO_INCREMENT;
 ALTER TABLE DONOR MODIFY Donor_id INTEGER NOT NULL AUTO_INCREMENT;
 ALTER TABLE DBA_LOGIN_CREDENTIALS MODIFY DBA_id INTEGER NOT NULL AUTO_INCREMENT;
+ALTER TABLE OPERATOR MODIFY Operator_id INTEGER NOT NULL AUTO_INCREMENT;
 
 
 
@@ -307,6 +308,23 @@ from BRANCH left join BLOOD on
 ) as tmp on (tmp.Bank_id=BLOOD_BANK.Bbank_id)
 group by Bbank_id,Name;
 END$$
+
+DELIMITER ;
+
+
+
+DELIMITER $$
+USE Blood_Donation_Project $$
+CREATE PROCEDURE all_blood_bank_stock () 
+                        BEGIN
+                        SELECT Bbank_id,Name as Blood_Bank_Name, count(Blood_id) as Blood_Unit_Count
+                        from BLOOD_BANK left join (
+                        SELECT Blood_id , BRANCH.Bbank_id as Bank_id
+                        from BRANCH left join BLOOD on 
+                        (BRANCH.Br_id=BLOOD.Br_id AND Date_of_Expiry > CURDATE())
+                        ) as tmp on (tmp.Bank_id=BLOOD_BANK.Bbank_id)
+                        group by Bbank_id,Name;
+                        END$$
 
 DELIMITER ;
 

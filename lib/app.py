@@ -88,6 +88,11 @@ def bloodbank_table():
 @app.route('/<Operator_id>/branches', methods=['GET','POST','DELETE','PUT'])
 @jwt_required()
 def bloodbank_branches_table(Operator_id):
+  if request.method == 'GET':
+        parameters = request.args.to_dict()
+        response = BloodBankBranch.get_all_branches(parameters["Bbank_id"],Operator_id)
+        return jsonify(response)
+
   if request.method == 'POST':
         branch = request.get_json()
         response = BloodBankBranch.creat_new_branch(branch,Operator_id)
@@ -104,8 +109,12 @@ def bloodbank_branches_table(Operator_id):
         return jsonify(response)
   return jsonify({"status":400,"entry":"Incorrect Method call"})
 
-
-
+@app.route('/<Operator_id>/branch_info', methods=['GET'])
+def get_branch_information(Operator_id):
+  if request.method == 'GET':
+        parameters = request.args.to_dict()
+        response = BloodBankBranch.get_particular_branche(parameters["Br_id"],Operator_id)
+        return jsonify(response)
 
 ############## BLOOD RELATED APIs #############################################
 #Operations by Operator related to blood and blood_stock table 

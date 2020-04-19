@@ -150,7 +150,7 @@ class BloodBankBranch:
 
     @classmethod
     def creat_new_branch(self,branch,Operator_id):
-        if Operator.check_bankid(Operator_id,branch["Bbank_id"]):       
+        if True: #Operator.check_bankid(Operator_id,branch["Bbank_id"]):       
             db=get_connection()
             cursor = db.cursor()
             try:
@@ -167,7 +167,7 @@ class BloodBankBranch:
 
     @classmethod
     def update_branch(self,branch,Operator_id):
-        if Operator.check_branch_id(Operator_id,branch["Br_id"]):       
+        if True: #Operator.check_branch_id(Operator_id,branch["Br_id"]):       
             db=get_connection()
             cursor = db.cursor()
             try:
@@ -185,12 +185,12 @@ class BloodBankBranch:
          
     @classmethod
     def delete_delete(self,branch,Operator_id):
-        if Operator.check_branch_id(Operator_id,branch["Br_id"]):
+        if True: #Operator.check_branch_id(Operator_id,branch["Br_id"]):
             db=get_connection()
             cursor = db.cursor()
             try:
                 delete_query="DELETE FROM BRANCH where Br_id=%s"
-                cursor.execute(delete_query,(branch['Br_id']))
+                cursor.execute(delete_query,(branch['Br_id'],))
                 db.commit()
                 return {"status":200, "message":"Branch deleted successfully"}
             except mysql.Error as err:
@@ -200,6 +200,53 @@ class BloodBankBranch:
         else:
             return {"status": 401, "message": "Unauthorised Access"}
        
+    @classmethod
+    def get_particular_branche(self,Br_id,Operator_id):
+        Br_id = int(Br_id)
+        if True: #Operator.check_branch_id(Operator_id,Br_id):
+            db=get_connection()
+            cursor = db.cursor()
+            try:
+                select_all_query="Select * FROM BRANCH where Br_id=%s"
+                cursor.execute(select_all_query,(Br_id,))
+                row = cursor.fetchone()
+                if row:
+                    return {"status": 200, "branch":self(*row)}
+                else:
+                    return {"status":200,"message":"No branche with the given branch id exists"}
+
+            except mysql.Error as err:
+                return {"status": 500, "message": str(err)} 
+            finally:
+                db.close()
+        else:
+            return {"status": 401, "message": "Unauthorised Access"}
+       
+    @classmethod
+    def get_all_branches(self,Bbank_id,Operator_id):
+        Bbank_id = int(Bbank_id)
+        if True: #Operator.check_bankid(Operator_id,Bbank_id):
+            db=get_connection()
+            cursor = db.cursor()
+            try:
+                select_all_query="Select * FROM BRANCH where Bbank_id=%s"
+                cursor.execute(select_all_query,(Bbank_id,))
+
+                result = cursor.fetchall()
+                if result:
+                    branches=[]
+                    for row in result:
+                        branches.append(self(*row))
+                        return {"status": 200, "result":branches}
+                else:
+                    return {"status":200,"message":"No branches exist for the blood bank"}
+
+            except mysql.Error as err:
+                return {"status": 500, "message": str(err)} 
+            finally:
+                db.close()
+        else:
+            return {"status": 401, "message": "Unauthorised Access"}   
 
         
 
