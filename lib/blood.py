@@ -143,7 +143,7 @@ class Blood:
                             FROM BLOOD \
                             WHERE Br_id=%s AND Blood_Group=%s"
                 try:
-                    cursor.execute(select_query,(parameters["Br_id"],parameters["Blood_Group"]))
+                    cursor.execute(select_query,(parameters["Br_id"],"A+"))
                     if cursor.rowcount == 0:
                         return {"status":404, "message":"branch id or Blood_Group is wrong"}
                     else:
@@ -308,6 +308,7 @@ class Blood:
 
     @classmethod
     def get_expired_units(self,parameters,Operator_id):
+        parameters["Bbank_id"] = int(parameters["Bbank_id"])
         if Operator.check_bankid(Operator_id,parameters["Bbank_id"]):   
             db=get_connection()
             cursor = db.cursor()
