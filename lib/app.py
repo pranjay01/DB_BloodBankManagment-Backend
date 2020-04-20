@@ -8,6 +8,7 @@ from datetime import timedelta
 from bloodbank import Bloodbank, BloodBankBranch
 from InsertDonor import InsertInTable, UpdateInTable, SelectInTable,DeleteInTable
 from operatorfile import Operators, Blood_donation_event
+from communication import send_notification
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'dbProject'
@@ -178,12 +179,18 @@ def add_blood_unit(Operator_id):
 #API to update the minimum limit of a particular blood goup 
 #in one of the operators corresponding branch
 @jwt_required()
-@app.route('/<Operator_id>/blood_limt', methods=['PUT'])
+@app.route('/<Operator_id>/blood_limit', methods=['PUT','GET'])
 def update_limit(Operator_id):
-  parameters = request.get_json()
-  #parameters = json.loads(data)
-  response = BloodStock.update_blood_stock_limit(parameters,Operator_id)
-  return jsonify(response)
+  if request.method == 'PUT': 
+    parameters = request.get_json()
+    #parameters = json.loads(data)
+    response = BloodStock.update_blood_stock_limit(parameters,Operator_id)
+    return jsonify(response)
+  
+  if request.method == 'GET':
+    parameter = request.args.to_dict()
+    response = BloodStock.list_limits(Operator_id,parameter)
+    return jsonify(response)
 
 @jwt_required()
 @app.route('/<Operator_id>/expired_blood', methods=['GET','DELETE'])
@@ -255,7 +262,7 @@ def delete_donor():
         return jsonify(response)
     return jsonify({"status":400,"entry":"Incorrect Method call"})
 
-
+@jwt_required
 @app.route('/bloodbank/donor',methods=['GET','POST','DELETE','PUT'])
 def select_donor():
     if request.method == 'GET':
@@ -343,6 +350,7 @@ def operator_table():
 
 
 @app.route('/blood_donation_event', methods=['GET', 'POST', 'DELETE', 'PUT'])
+@jwt_required()
 def blood_donation_event_table():
 
   if request.method == 'GET':
@@ -373,9 +381,24 @@ def blood_donation_event_table():
 
   return jsonify({"status": 400, "entry": "Incorrect Method call"})
 
-@app.route('/<operator_id>/blood_donation_event/all', methods=['GET', 'POST', 'DELETE', 'PUT'])
+
+
+@app.route('/<operator_id>/blood_donation_event/all', methods=['GET'])
+@jwt_required()
 def list_all_event_list_of_operator(operator_id):
   response = Blood_donation_event.get_operator_vent_list(operator_id)
+  return jsonify(response)
+
+@app.route('/active_blood_donation_event', methods=['GET'])
+def list_all_active_event_list(operator_id):
+  response = Blood_donation_event.get_active_event_list()
+  return jsonify(response)
+
+@app.route('/<operator_id>/send_notification', methods=['POST'])
+@jwt_required()
+def send_notification_to_donors(operator_id):
+  params = request.get_json()
+  response = send_notification(operator_id,params)
   return jsonify(response)
 
 @app.route('/')

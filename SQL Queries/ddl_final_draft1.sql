@@ -69,7 +69,7 @@ City VARCHAR(20),
 Zip INT CHECK (Zip BETWEEN 10000 and 99999),
 Paid_Unpaid BOOL DEFAULT false,
 Notification_Subscription BOOL DEFAULT false,
-Notification_Type ENUM('MAIL','MESSAGE') ,
+Notification_Type ENUM('E-MAIL','MESSAGE') ,
 Operator_id INT);
 
 Create table DONOR_EMAIL

@@ -393,3 +393,33 @@ class BloodStock:
                 db.close()
         else:
             return {"status": 401, "message": "Unauthorised Access"}
+
+    @classmethod
+    def list_limits(self,Operator_id,parameter):
+        Bbank_id=int(parameter["Bbank_id"])
+        if Operator.check_bankid(Operator_id,Bbank_id):
+            db=get_connection()
+            cursor = db.cursor()
+            select_query="select bstk.Br_id,bstk.Blood_Group,bstk.Btype_Limits from \
+                    BLOOD_STOCK as bstk join BRANCH as br on (bstk.Br_id=br.Br_id) \
+                        where Bbank_id=%s"
+            try:
+                cursor.execute(select_query,(Bbank_id,))
+                result = cursor.fetchall()
+                stocks=[]
+                db.commit()
+                for row in result:
+                    stocks.append({'Br_id':row[0], 'Blood_Group':row[1],
+                                        'Btype_Limits': row[2]})
+
+
+                db.commit()
+                return {"status":201, "list":stocks}
+
+            except mysql.Error as err:
+                print("Internal Server error: {}".format(err))
+                return {"status": 500, "message": str(err)}
+            finally:
+                db.close()
+        else:
+            return {"status": 401, "message": "Unauthorised Access"}

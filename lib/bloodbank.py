@@ -161,6 +161,21 @@ class BloodBankBranch:
             try:
                 insert_query="INSERT INTO BRANCH (Br_Type,Bbank_id,Street,City,Zip)  VALUES (%s,%s,%s,%s,%s)"
                 cursor.execute(insert_query,( branch['Br_Type'],branch['Bbank_id'],branch['Street'],branch['City'],branch['Zip']))
+                
+                branch_id=cursor.lastrowid
+                branch.update({"Br_id":branch_id})
+                #var_Donor = cursor.execute("SELECT MAX(Donor_id) FROM DONOR;")
+                db.commit()
+                #add Phone nos
+                add_contactno(branch["Phone_no"],branch_id,cursor)
+                db.commit()
+                #Add branch related information into BLOOD_STOCK
+                bl_grp=['O+','A+','B+','AB+','O-','A-','B-','AB-']
+                stocks=[]
+                for grp in bl_grp:
+                    T=(branch_id,grp)
+                    stocks.append(T)
+                cursor.executemany(insert_query,stocks)
                 db.commit()
                 return {"status":201, "message":"New branch created", "branch": branch}
             except mysql.Error as err:
@@ -169,6 +184,7 @@ class BloodBankBranch:
                 db.close()
         else:
             return {"status": 401, "message": "Unauthorised Access"}
+        
 
     @classmethod
     def update_branch(self,branch,Operator_id):
@@ -176,6 +192,17 @@ class BloodBankBranch:
             db=get_connection()
             cursor = db.cursor()
             try:
+                update_query="UPDATE BRANCH set Br_Type=%s, Street=%s, City=%s, Zip=%s where Br_id=%s"
+                cursor.execute(update_query,( branch['Br_Type'],branch['Street'],branch['City'],branch['Zip'],branch['Br_id']))
+                db.commit()
+
+                delete_query="DELETE FROM BRANCH_PHONE where Br_id=%s"
+                cursor.execute(delete_query,branch["Br_id"])
+                db.commit()
+                
+                add_contactno(branch["Phone_no"],branch["Br_id"],cursor)
+                db.commit()
+
                 update_query="UPDATE BRANCH set Br_Type=%s, Street=%s, City=%s, Zip=%s where Br_id=%s"
                 cursor.execute(update_query,( branch['Br_Type'],branch['Street'],branch['City'],branch['Zip'],branch['Br_id']))
                 db.commit()
@@ -196,6 +223,10 @@ class BloodBankBranch:
             cursor = db.cursor()
             try:
                 delete_query="DELETE FROM BRANCH where Br_id=%s"
+                cursor.execute(delete_query,(branch['Br_id'],))
+                db.commit()
+
+                delete_query="DELETE FROM BRANCH_PHONE where Br_id=%s"
                 cursor.execute(delete_query,(branch['Br_id'],))
                 db.commit()
                 return {"status":200, "message":"Branch deleted successfully"}
@@ -220,6 +251,21 @@ class BloodBankBranch:
                     branch ={"Br_id":row[0],"Br_Type":row[1],
                         "Bbank_id":row[2],"Street":row[3],
                         "City":row[4],"Zip":row[5]}
+
+                    select_all_query="Select Phone_no FROM BRANCH_PHONE where Br_id=%s"
+                    cursor.execute(select_all_query,(Br_id,))
+                    rows = cursor.fetchall()
+
+                    if rows:  
+                        phone_no={}
+                        i = 1
+                        for row in rows:
+                            tmp = {f"{i}":row[0]}
+                            phone_no.update(tmp)
+                            i=i+1
+
+                        tmp = {"phone_no":phone_no}
+                        branch.update(tmp)    
                     return {"status": 200, "branch":branch}
                 else:
                     return {"status":200,"message":"No branche with the given branch id exists"}
@@ -248,7 +294,7 @@ class BloodBankBranch:
                         branches.append({"Br_id":row[0],"Br_Type":row[1],
                         "Bbank_id":row[2],"Street":row[3],
                         "City":row[4],"Zip":row[5]})
-                        return {"status": 200, "result":branches}
+                    return {"status": 200, "result":branches}
                 else:
                     return {"status":200,"message":"No branches exist for the blood bank"}
 
@@ -259,9 +305,16 @@ class BloodBankBranch:
         else:
             return {"status": 401, "message": "Unauthorised Access"}   
 
-        
-
-        
-
+def add_contactno(phone_dict,branch_id,cursor):
+    insert_query="Insert Into BRANCH_PHONE VALUES(%s,%s)"
+    phones=[]
+    for phone in phone_dict:
+        T=(branch_id,phone_dict[phone])
+        phones.append(T)
+    
+    try:
+        cursor.executemany(insert_query,phones)
+    except mysql.Error as err:
+        return {"status": 500, "message": str(err)} 
 
      

@@ -24,6 +24,7 @@ class Operators:
         db = get_connection()
         cursor = db.cursor()
         operator['Operator_id'] = int(operator['Operator_id'])
+        
         delete_query = "DELETE FROM OPERATOR WHERE Operator_id =%s"
         try:
             cursor.execute(delete_query,(operator['Operator_id'],))
@@ -145,20 +146,20 @@ class Blood_donation_event:
             db.close()
         return {"status": 200, "event": blood_donation_event}
 
-    @classmethod
-    def delete_blood_donation_drive(self, blood_donation_event):
-        db = get_connection()
-        cursor = db.cursor()
+    # @classmethod
+    # def delete_blood_donation_drive(self, blood_donation_event):
+    #     db = get_connection()
+    #     cursor = db.cursor()
 
-        delete_query = f"DELETE FROM BLOOD_DONATION_EVENT WHERE DRIVE_id = '{blood_donation_event['Drive_id']}'"
-        try:
-            cursor.execute(delete_query)
-            db.commit()
-        except mysql.Error as err:
-            print("Failed to delete entry: {}".format(err))
-            return {"status": 400, "entry": str(err)}
-        db.close()
-        return {"status": 200, "entry": blood_donation_event}
+    #     delete_query = f"DELETE FROM BLOOD_DONATION_EVENT WHERE DRIVE_id = '{blood_donation_event['Drive_id']}'"
+    #     try:
+    #         cursor.execute(delete_query)
+    #         db.commit()
+    #     except mysql.Error as err:
+    #         print("Failed to delete entry: {}".format(err))
+    #         return {"status": 400, "entry": str(err)}
+    #     db.close()
+    #     return {"status": 200, "entry": blood_donation_event}
 
     @classmethod
     def get_blood_donation_event(self, blood_donation_event):
@@ -202,61 +203,71 @@ class Blood_donation_event:
 
     @classmethod
     def update_blood_donation_event(self, blood_donation_event):
-        
-
-        select_query = "SELECT Date_of_event from BLOOD_DONATION_EVENT where Drive_id=%s \
-                        and Operator_id=%s"
-        try:
-            db=get_connection()
-            cursor = db.cursor()
-            cursor.execute(select_query,(blood_donation_event['Drive_id'],blood_donation_event['Operator_id']))
-            row = cursor.fetchone()
-            date= row[0]
-            dateToday=datetime.today().strftime('%Y-%m-%d')
-            if(date < dateToday):
-                return {"status":404, "message":"Event already expired, can't be updated"} 
-        except mysql.Error as err:
-            print("Failed to update entry: {}".format(err))
-            return {"status": 500, "message": str(err)}
-        finally:
-            db.close()
-        update_query = "UPDATE BLOOD_DONATION_EVENT set"
-        args=[]
-        for key in blood_donation_event:
-            if blood_donation_event[key]:
-                update_query = update_query + "set " + key + "=%s"
-                args.append(blood_donation_event[key])
-        try:
-            db=get_connection()
-            cursor = db.cursor()
-            argument = tuple(args)
-            cursor.execute(update_query,argument)
-            db.commit()
-            return {"status":201, "message":"Event updated succesfully"}
-        except mysql.Error as err:
-            print("Failed to update entry: {}".format(err))
-            return {"status": 500, "message": str(err)}
-        finally:
-            db.close()
-
+        db=get_connection()
+        cursor = db.cursor()
+        if check_active(blood_donation_event["Drive_id"],blood_donation_event["Operator_id"],cursor):
+            update_query = "UPDATE BLOOD_DONATION_EVENT set"
+            args=[]
+            for key in blood_donation_event:
+                if blood_donation_event[key]:
+                    update_query = update_query + "set " + key + "=%s"
+                    args.append(blood_donation_event[key])
+            try:
+                db=get_connection()
+                cursor = db.cursor()
+                argument = tuple(args)
+                cursor.execute(update_query,argument)
+                db.commit()
+                return {"status":201, "message":"Event updated succesfully"}
+            except mysql.Error as err:
+                print("Failed to update entry: {}".format(err))
+                return {"status": 500, "message": str(err)}
+            finally:
+                db.close()
+        else:
+            return {"status":404, "message":"Event already expired, can't be updated"} 
 
     @classmethod
     def delete_blood_donation_event(self,event):
         event['Drive_id'] = int(event['Drive_id'])
         event['Operator_id'] = int(event['Operator_id'])
-        select_query = "DELETE from BLOOD_DONATION_EVENT where Drive_id=%s \
-                        and Operator_id=%s"
+        db=get_connection()
+        cursor = db.cursor()
+        if check_active(event["Drive_id"],event["Operator_id"],cursor):
+            select_query = "DELETE from BLOOD_DONATION_EVENT where Drive_id=%s \
+                            and Operator_id=%s"
+            try:
+                cursor.execute(select_query,(event['Drive_id'],event['Operator_id']))
+                db.commit()
+                return {"status":200, "message":"event deleted succefully"}
+            except mysql.Error as err:
+                print("Failed to update entry: {}".format(err))
+                return {"status": 500, "message": str(err)}
+            finally:
+                db.close()
+        else:
+            return {"status":404, "message":"Event already expired, can't be deleted"}
+
+    @classmethod
+    def get_active_event_list(self):
+        db=get_connection()
+        cursor = db.cursor()
+        select_query="SELECT * FROM BLOOD_DONATION_EVENT WHERE Date_of_event>CURDATE() order by Date_of_event"
         try:
-            db=get_connection()
-            cursor = db.cursor()
-            cursor.execute(select_query,(event['Drive_id'],event['Operator_id']))
+            cursor.execute(select_query)
+            result = cursor.fetchall()
+            events=[]
+            for row in result:
+                events.append({"Drive_id":row[0],"Name":row[1],
+                "Date_of_event":row[2],"Venue":row[3]})
             db.commit()
-            return {"status":200, "message":"event deleted succefully"}
+            return {"status":200, "events":events}
         except mysql.Error as err:
             print("Failed to update entry: {}".format(err))
             return {"status": 500, "message": str(err)}
         finally:
             db.close()
+    
         # update the Venue of the blood_donation_event
         # if blood_donation_event["Drive_id"] != None and blood_donation_event["Venue"] != None:
         #     db = get_connection()
@@ -301,3 +312,23 @@ class Blood_donation_event:
         #         return {"status": 500, "message": str(err)}
         #     finally:
         #             db.close()
+
+def check_active(Drive_id,Operator_id,cursor):
+    select_query = "SELECT Date_of_event from BLOOD_DONATION_EVENT where Drive_id=%s \
+                        and Operator_id=%s"
+    try:
+        cursor.execute(select_query,(Drive_id,Operator_id))
+        row = cursor.fetchone()
+        if row:
+            date= row[0]
+            dateToday=datetime.today().strftime('%Y-%m-%d')
+            if(date < dateToday):
+                True
+            else:
+                False
+        else:
+            return{"status":200,"message":"Drive id doesn't belongs to operator"}
+    except mysql.Error as err:
+        print("Failed to update entry: {}".format(err))
+        return {"status": 500, "message": str(err)}
+   
