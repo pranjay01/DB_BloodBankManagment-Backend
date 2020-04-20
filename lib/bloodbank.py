@@ -51,7 +51,9 @@ class Bloodbank:
                 result = cursor.fetchall()
                 blood_banks=[]
                 for row in result:
-                    blood_banks.append(self(*row))
+                    blood_banks.append({"Bbank_id":row[0],"Name":row[1],
+                        "Type":row[2],"Phone_no":row[3]
+                        })
                     return {"status": 200, "result":blood_banks}
             except mysql.Error as err:
                 print("Failed to fetch the blood bank details : {}".format(err))
@@ -65,7 +67,10 @@ class Bloodbank:
             try:
                 cursor.execute(get_query,(bloodbank['Bbank_id'],))
                 row = cursor.fetchone()
-                return {"status": 200, "result":self(*row)}
+                bank = {"Bbank_id":row[0],"Name":row[1],
+                        "Type":row[2],"Phone_no":row[3]
+                        }
+                return {"status": 200, "result":bank}
             except mysql.Error as err:
                 print("Failed to fetch the blood bank details : {}".format(err))
                 return {"status": 500, "message": str(err)}
@@ -212,7 +217,10 @@ class BloodBankBranch:
                 cursor.execute(select_all_query,(Br_id,))
                 row = cursor.fetchone()
                 if row:
-                    return {"status": 200, "branch":self(*row)}
+                    branch ={"Br_id":row[0],"Br_Type":row[1],
+                        "Bbank_id":row[2],"Street":row[3],
+                        "City":row[4],"Zip":row[5]}
+                    return {"status": 200, "branch":branch}
                 else:
                     return {"status":200,"message":"No branche with the given branch id exists"}
 
@@ -237,7 +245,9 @@ class BloodBankBranch:
                 if result:
                     branches=[]
                     for row in result:
-                        branches.append(self(*row))
+                        branches.append({"Br_id":row[0],"Br_Type":row[1],
+                        "Bbank_id":row[2],"Street":row[3],
+                        "City":row[4],"Zip":row[5]})
                         return {"status": 200, "result":branches}
                 else:
                     return {"status":200,"message":"No branches exist for the blood bank"}
