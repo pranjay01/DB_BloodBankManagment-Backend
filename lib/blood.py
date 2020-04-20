@@ -139,11 +139,14 @@ class Blood:
             parameters["Br_id"] = int(parameters["Br_id"])
             if Operator.check_branch_id(Operator_id,parameters["Br_id"]):
 
-                select_query="SELECT Blood_id, Blood_Group, Donor_id, Donation_Date, Date_of_Expiry, Special_Attributes \
-                            FROM BLOOD \
-                            WHERE Br_id=%s AND Blood_Group=%s"
+                #select_query="SELECT Blood_id, Blood_Group, Donor_id, Donation_Date, Date_of_Expiry, Special_Attributes \
+                #            FROM BLOOD \
+                #            WHERE Br_id=%s AND Blood_Group='%s'"
+
+                select_query = f"""SELECT Blood_id, Blood_Group, Donor_id, Donation_Date, Date_of_Expiry, Special_Attributes 
+                     FROM BLOOD WHERE Br_id={parameters["Br_id"]} AND Blood_Group={2}"""            
                 try:
-                    cursor.execute(select_query,(parameters["Br_id"],"A+"))
+                    cursor.execute(select_query)#,(parameters["Br_id"],parameters["Blood_Group"]))
                     if cursor.rowcount == 0:
                         return {"status":404, "message":"branch id or Blood_Group is wrong"}
                     else:
@@ -288,6 +291,7 @@ class Blood:
             return {"status": 404, "message": "Case not found"}
     @classmethod
     def delete_blood_unit(self,parameters,Operator_id):
+        parameters["Br_id"] = int(parameters["Br_id"])
         if Operator.check_branch_id(Operator_id,parameters["Br_id"]):
                 
             db=get_connection()
@@ -320,10 +324,10 @@ class Blood:
                 blood_units=[]
                 db.commit()
                 for row in result:
-                    blood_units.append({'Blood_id':row[0], 'Blood_Group':row[2],
-                                        'Br_id': row[3],'Special_Attributes':row[1],
-                                        'Donor_id':row[4],'Donation_Date':row[5],
-                                        'Date_of_Expiry':row[6]})
+                    blood_units.append({'Blood_id':row[0], 'Blood_Group':row[1],
+                                        'Br_id': row[2],'Special_Attributes':row[6],
+                                        'Donor_id':row[3],'Donation_Date':row[4],
+                                        'Date_of_Expiry':row[5]})
 
                 return {"status": 200, "result":blood_units}
             except mysql.Error as err:
@@ -336,6 +340,7 @@ class Blood:
 
     @classmethod
     def delete_expired_units(self,parameters,Operator_id):
+        parameters["Bbank_id"] = int(parameters["Bbank_id"])
         if Operator.check_bankid(Operator_id,parameters["Bbank_id"]):   
             db=get_connection()
             cursor = db.cursor()

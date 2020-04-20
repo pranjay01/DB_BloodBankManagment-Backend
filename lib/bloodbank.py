@@ -27,7 +27,7 @@ class Bloodbank:
     def delete_bloodbank(self,bloodbank):
         db=get_connection()
         cursor = db.cursor()
-
+        bloodbank['Bbank_id'] = int(bloodbank['Bbank_id'])
         delete_query="DELETE FROM BLOOD_BANK WHERE Bbank_id =%s"
         try:
             cursor.execute(delete_query,(bloodbank['Bbank_id'],))
@@ -150,7 +150,7 @@ class BloodBankBranch:
 
     @classmethod
     def creat_new_branch(self,branch,Operator_id):
-        if True: #Operator.check_bankid(Operator_id,branch["Bbank_id"]):       
+        if Operator.check_bankid(Operator_id,branch["Bbank_id"]):       
             db=get_connection()
             cursor = db.cursor()
             try:
@@ -167,7 +167,7 @@ class BloodBankBranch:
 
     @classmethod
     def update_branch(self,branch,Operator_id):
-        if True: #Operator.check_branch_id(Operator_id,branch["Br_id"]):       
+        if Operator.check_branch_id(Operator_id,branch["Br_id"]):       
             db=get_connection()
             cursor = db.cursor()
             try:
@@ -185,7 +185,8 @@ class BloodBankBranch:
          
     @classmethod
     def delete_delete(self,branch,Operator_id):
-        if True: #Operator.check_branch_id(Operator_id,branch["Br_id"]):
+        branch["Br_id"] = int(branch["Br_id"])
+        if Operator.check_branch_id(Operator_id,branch["Br_id"]):
             db=get_connection()
             cursor = db.cursor()
             try:
@@ -203,7 +204,7 @@ class BloodBankBranch:
     @classmethod
     def get_particular_branche(self,Br_id,Operator_id):
         Br_id = int(Br_id)
-        if True: #Operator.check_branch_id(Operator_id,Br_id):
+        if Operator.check_branch_id(Operator_id,Br_id):
             db=get_connection()
             cursor = db.cursor()
             try:

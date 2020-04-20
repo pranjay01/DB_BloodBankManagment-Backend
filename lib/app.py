@@ -75,7 +75,8 @@ def bloodbank_table():
         return jsonify(response)
 
   if request.method == 'DELETE':
-        blood_bank_entry = request.get_json()
+        #blood_bank_entry = request.get_json()
+        blood_bank_entry = request.args.to_dict()
         response = Bloodbank.delete_bloodbank(blood_bank_entry)
         return jsonify(response)
   return jsonify({"status":400,"entry":"Incorrect Method call"})
@@ -104,7 +105,8 @@ def bloodbank_branches_table(Operator_id):
         return jsonify(response)
 
   if request.method == 'DELETE':
-        branch = request.get_json()
+        #branch = request.get_json()
+        branch=request.args.to_dict()
         response = BloodBankBranch.delete_delete(branch,Operator_id)
         return jsonify(response)
   return jsonify({"status":400,"entry":"Incorrect Method call"})
@@ -165,7 +167,8 @@ def add_blood_unit(Operator_id):
   #API function to delete blood unit 
   #Required parameter only blood id
   if request.method == 'DELETE':
-    bloodUnit = request.get_json()
+    #bloodUnit = request.get_json()
+    bloodUnit=request.args.to_dict()
     #bloodUnit = json.loads(data)
     response = Blood.delete_blood_unit(bloodUnit,Operator_id)
     return jsonify(response)
@@ -196,7 +199,7 @@ def get_expired_bloodUnits(Operator_id):
 #def delete_expired_bloodUnits(Operator_id):
   #delete all the expired blood units of that particular blood bank
   if request.method == 'DELETE':      
-    parameters = request.get_json()
+    parameters = request.args.to_dict()
     #parameters = json.loads(data)
     response = Blood.delete_expired_units(parameters,Operator_id)
     return jsonify(response)
@@ -247,8 +250,7 @@ def update_donor():
 @app.route('/bloodbank/donor/delete',methods=['GET','POST','DELETE','PUT'])
 def delete_donor():
     if request.method == 'DELETE':
-        data = request.get_json()
-        single_donor = json.loads(data)
+        single_donor = request.args.to_dict()
         response = DeleteInTable.donor(single_donor)
         return jsonify(response)
     return jsonify({"status":400,"entry":"Incorrect Method call"})
@@ -287,8 +289,7 @@ def update_contact():
 @app.route('/bloodbank/donor/econtact/delete',methods=['GET','POST','DELETE','PUT'])
 def delete_contact():
     if request.method == 'DELETE':
-        data = request.get_json()
-        single_donor = json.loads(data)
+        single_donor = request.args.to_dict()
         response = DeleteInTable.donor(single_donor)
         return jsonify(response)
     return jsonify({"status":400,"entry":"Incorrect Method call"})
@@ -325,7 +326,7 @@ def operator_table():
   # return jsonify({"status":400,"entry":"Incorrect Method call"})
 
   if request.method == 'DELETE':
-      operator_entry = request.get_json()
+      operator_entry = request.args.to_dict()
       response = Operators.delete_operator(operator_entry)
       return jsonify(response)
       # return jsonify({"status":400,"entry":"Incorrect Method call"})
@@ -365,8 +366,7 @@ def blood_donation_event_table():
   # return jsonify({"status":400,"entry":"Incorrect Method call"})
 
   if request.method == 'DELETE':
-      blood_donation_event_entry = request.get_json()
-      event = request.get_json()
+      event = request.args.to_dict()
       response = Blood_donation_event.delete_blood_donation_event(event)
       return jsonify(response)
   # return jsonify({"status":400,"entry":"Incorrect Method call"})

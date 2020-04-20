@@ -203,6 +203,8 @@ class DeleteInTable:
         # Delete on cascade expected to take care of the rest
         db = get_connection()
         cursor = db.cursor()
+        single_donor["Br_id"]=int(single_donor["Br_id"])
+        single_donor["Operator_id"] = int(single_donor["Operator_id"])
         if Operator.check_branch_id(single_donor["Operator_id"], single_donor["Br_id"]):
             delete_query = f"DELETE FROM DONOR_PHONE WHERE Donor_id = '{single_donor['Donor_id']}'"
             try:

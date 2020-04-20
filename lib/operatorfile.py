@@ -23,10 +23,10 @@ class Operators:
     def delete_operator(self, operator):
         db = get_connection()
         cursor = db.cursor()
-
-        delete_query = f"DELETE FROM OPERATOR WHERE Operator_id = '{operator['Operator_id']}'"
+        operator['Operator_id'] = int(operator['Operator_id'])
+        delete_query = "DELETE FROM OPERATOR WHERE Operator_id =%s"
         try:
-            cursor.execute(delete_query)
+            cursor.execute(delete_query,(operator['Operator_id'],))
             db.commit()
             return {"status": 200, "entry": operator}
 
@@ -242,6 +242,8 @@ class Blood_donation_event:
 
     @classmethod
     def delete_blood_donation_event(self,event):
+        event['Drive_id'] = int(event['Drive_id'])
+        event['Operator_id'] = int(event['Operator_id'])
         select_query = "DELETE from BLOOD_DONATION_EVENT where Drive_id=%s \
                         and Operator_id=%s"
         try:
