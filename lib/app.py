@@ -17,6 +17,9 @@ app.config['JWT_EXPIRATION_DELTA'] = timedelta(seconds=3000)
 app.config['JWT_AUTH_USERNAME_KEY'] = 'Email'
 app.config['JWT_AUTH_PASSWORD_KEY'] = 'Password'
 
+CORS(app)
+# cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+
 
 ############## LOGIN/SIGNUP APIs #############################################
 #
