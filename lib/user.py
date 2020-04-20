@@ -1,5 +1,5 @@
 import mysql.connector as mysql
-from create_table import get_connection
+from connection import get_connection
 import base64
 
 
@@ -60,7 +60,7 @@ class Operator:
             cursor.execute(query,(new_operator['Name'], 
             new_operator['Email'],passwrd, new_operator['Bbank_id']))
             db.commit()
-            return {"message": "User created successfully."}, 201
+            return {"message": "Operator created successfully."}, 201
         except mysql.Error as err:
             print("Internal Server error: {}".format(err))
             return {"status": 500, "message": str(err)}
@@ -69,6 +69,7 @@ class Operator:
 
     @classmethod
     def check_bankid(self,Operator_id,Bbank_id):
+        Operator_id=int(Operator_id)
         oprator = self.find_by_id(Operator_id)
         if oprator and oprator.Bbank_id==Bbank_id:
             return True
@@ -77,14 +78,15 @@ class Operator:
 
     @classmethod
     def check_branch_id(self,Operator_id,branch_id):
+        Operator_id=int(Operator_id)
         oprator = self.find_by_id(Operator_id)
-        selectQuery = "Select Br_id FROM BRANCH WHERE Bbank_id=%s"
+        selectQuery = "Select Bbank_id FROM BRANCH WHERE Br_id=%s"
         db=get_connection()
         cursor = db.cursor()
         try:
-            cursor.execute(selectQuery,(oprator.Bbank_id,))
+            cursor.execute(selectQuery,(branch_id,))
             row = cursor.fetchone()
-            if row and row[0]==branch_id:
+            if row and row[0]==oprator.Bbank_id:
                 return True
             else:
                 return None

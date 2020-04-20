@@ -5,10 +5,9 @@ from flask_jwt import JWT, jwt_required
 from security import authenticate, identity
 from user import Operator
 from datetime import timedelta
-from bloodbank import Bloodbank
+from bloodbank import Bloodbank, BloodBankBranch
 from InsertDonor import InsertInTable, UpdateInTable, SelectInTable,DeleteInTable
-
-
+from operatorfile import Operators, Blood_donation_event
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'dbProject'
@@ -45,7 +44,7 @@ def create_operator():
   new_operator=request.get_json()
   #new_operator = json.loads(data)
   if Operator.find_by_email(new_operator['Email']):
-    return jsonify({"message":"A user with same name already exists"}), 400
+    return jsonify({"status":400,"message":"A user with same name already exists"})
   else:
     response= Operator.register(new_operator)
     return jsonify(response)
@@ -60,7 +59,7 @@ def bloodbank_table():
   # case 1: give list of all blood banks
   # case 2: give information of only 1 particular blood bank 
   if request.method == 'GET':
-        blood_bank_entry = request.args
+        blood_bank_entry = request.args.to_dict()
         response = Bloodbank.get_bloodbank(blood_bank_entry)
         return jsonify(response)
 
@@ -76,12 +75,48 @@ def bloodbank_table():
         return jsonify(response)
 
   if request.method == 'DELETE':
-        blood_bank_entry = request.get_json()
+        #blood_bank_entry = request.get_json()
+        blood_bank_entry = request.args.to_dict()
         response = Bloodbank.delete_bloodbank(blood_bank_entry)
         return jsonify(response)
   return jsonify({"status":400,"entry":"Incorrect Method call"})
 
 
+############## BLOOD-BANK-BRANCHES RELATED APIs #############################################
+#Operations by Operator related to blood and blood_stock table 
+###############################################################################
+
+@app.route('/<Operator_id>/branches', methods=['GET','POST','DELETE','PUT'])
+@jwt_required()
+def bloodbank_branches_table(Operator_id):
+  if request.method == 'GET':
+        parameters = request.args.to_dict()
+        response = BloodBankBranch.get_all_branches(parameters["Bbank_id"],Operator_id)
+        return jsonify(response)
+
+  if request.method == 'POST':
+        branch = request.get_json()
+        response = BloodBankBranch.creat_new_branch(branch,Operator_id)
+        return jsonify(response)
+
+  if request.method == 'PUT':
+        branch = request.get_json()
+        response = BloodBankBranch.update_branch(branch,Operator_id)
+        return jsonify(response)
+
+  if request.method == 'DELETE':
+        #branch = request.get_json()
+        branch=request.args.to_dict()
+        response = BloodBankBranch.delete_delete(branch,Operator_id)
+        return jsonify(response)
+  return jsonify({"status":400,"entry":"Incorrect Method call"})
+
+@app.route('/<Operator_id>/branch_info', methods=['GET'])
+def get_branch_information(Operator_id):
+  if request.method == 'GET':
+        parameters = request.args.to_dict()
+        response = BloodBankBranch.get_particular_branche(parameters["Br_id"],Operator_id)
+        return jsonify(response)
 
 ############## BLOOD RELATED APIs #############################################
 #Operations by Operator related to blood and blood_stock table 
@@ -92,12 +127,13 @@ def bloodbank_table():
 
 #API function to insert new blood unit from donor
 #Required compulsory info, donor id, branch id
-def add_blood_unit():
+@jwt_required()
+def add_blood_unit(Operator_id):
   
   if request.method == 'POST':
-    data=request.get_json()
-    bloodUnit = json.loads(data)
-    response = Blood.insert_blood(bloodUnit)
+    bloodUnit=request.get_json()
+    #bloodUnit = json.loads(data)
+    response = Blood.insert_blood(bloodUnit,Operator_id)
     return jsonify(response)
 
 #@jwt_required()
@@ -108,7 +144,7 @@ def add_blood_unit():
   #Case 3: list blood group wise blood unit count of that particular branch : required branch id
   #case 4: list all blood units info of a particular branch and blood group : required branchid and blood group
   if request.method == 'GET':
-    parameters = request.args
+    parameters = request.args.to_dict()
     #parameters = json.loads(data)
     response = Blood.get_blood_units(parameters,Operator_id)
     return jsonify(response)
@@ -121,9 +157,9 @@ def add_blood_unit():
   #when 2:When transferring blood units from current branch to other branch, required 3 parameters
   #1-target branch, 2-count of blood units to be transferred, 3-blood group
   if request.method == 'PUT':
-    data = request.get_json()
-    parameters = json.loads(data)
-    response = Blood.upadate_blood_bank(parameters)
+    parameters = request.get_json()
+    #parameters = json.loads(data)
+    response = Blood.upadate_blood_bank(parameters,Operator_id)
     return jsonify(response)
 
 
@@ -131,18 +167,22 @@ def add_blood_unit():
   #API function to delete blood unit 
   #Required parameter only blood id
   if request.method == 'DELETE':
-    data = request.get_json()
-    bloodUnit = json.loads(data)
-    response = Blood.get_blood_units(bloodUnit)
+    #bloodUnit = request.get_json()
+    bloodUnit=request.args.to_dict()
+    #bloodUnit = json.loads(data)
+    response = Blood.delete_blood_unit(bloodUnit,Operator_id)
     return jsonify(response)
-  return jsonify({"status":400,"entry":"Incorrect Method call"})
+  return jsonify({"status":400,"message":"Incorrect Method call"})
 
 
-@app.route('/operator/blood_limt', methods=['PUT'])
-def update_limit():
-  data = request.get_json()
-  parameters = json.loads(data)
-  response = BloodStock.update_blood_stock_limit(parameters)
+#API to update the minimum limit of a particular blood goup 
+#in one of the operators corresponding branch
+@jwt_required()
+@app.route('/<Operator_id>/blood_limt', methods=['PUT'])
+def update_limit(Operator_id):
+  parameters = request.get_json()
+  #parameters = json.loads(data)
+  response = BloodStock.update_blood_stock_limit(parameters,Operator_id)
   return jsonify(response)
 
 @jwt_required()
@@ -150,7 +190,7 @@ def update_limit():
 def get_expired_bloodUnits(Operator_id):
   #return all the expired blood units of the blood bank of which operator belongs to
   if request.method == 'GET':      
-    parameters = request.args
+    parameters = request.args.to_dict()
     #parameters = json.loads(data)
     response = Blood.get_expired_units(parameters,Operator_id)
     return jsonify(response)
@@ -159,11 +199,11 @@ def get_expired_bloodUnits(Operator_id):
 #def delete_expired_bloodUnits(Operator_id):
   #delete all the expired blood units of that particular blood bank
   if request.method == 'DELETE':      
-    data = request.get_json()
-    parameters = json.loads(data)
-    response = Blood.delete_expired_units(parameters)
+    parameters = request.args.to_dict()
+    #parameters = json.loads(data)
+    response = Blood.delete_expired_units(parameters,Operator_id)
     return jsonify(response)
-  return jsonify({"status":400,"entry":"Incorrect Method call"})
+  return jsonify({"status":400,"message":"Incorrect Method call"})
 
 
 
@@ -175,7 +215,7 @@ def get_expired_bloodUnits(Operator_id):
 ################################################################################
 @app.route('/guest_user/blood', methods=['GET'])
 def get_blood_unit_count_for_user():
-  parameters = request.args
+  parameters = request.args.to_dict()
   #parameters = json.loads(data)
   response = Blood.get_bloodunit_list_guest_user(parameters)
   return jsonify(response)
@@ -210,8 +250,7 @@ def update_donor():
 @app.route('/bloodbank/donor/delete',methods=['GET','POST','DELETE','PUT'])
 def delete_donor():
     if request.method == 'DELETE':
-        data = request.get_json()
-        single_donor = json.loads(data)
+        single_donor = request.args.to_dict()
         response = DeleteInTable.donor(single_donor)
         return jsonify(response)
     return jsonify({"status":400,"entry":"Incorrect Method call"})
@@ -221,12 +260,12 @@ def delete_donor():
 def select_donor():
     if request.method == 'GET':
         #data = request.get_json()
-        single_donor = request.args
+        single_donor = request.args.to_dict()
         response = SelectInTable.donor(single_donor)
         return jsonify(response)
     return jsonify({"status":400,"entry":"Incorrect Method call"})
 
-
+@jwt_required
 @app.route('/bloodbank/donor/econtact',methods=['GET','POST','DELETE','PUT'])
 def add_contact():
     if request.method == 'POST':
@@ -236,7 +275,7 @@ def add_contact():
         return jsonify(response)
     return jsonify({"status":400,"entry":"Incorrect Method call"})
 
-
+@jwt_required
 @app.route('/bloodbank/donor/econtact/update',methods=['GET','POST','DELETE','PUT'])
 def update_contact():
     if request.method == 'PUT':
@@ -246,12 +285,11 @@ def update_contact():
         return jsonify(response)
     return jsonify({"status":400,"entry":"Incorrect Method call"})
 
-
+@jwt_required
 @app.route('/bloodbank/donor/econtact/delete',methods=['GET','POST','DELETE','PUT'])
 def delete_contact():
     if request.method == 'DELETE':
-        data = request.get_json()
-        single_donor = json.loads(data)
+        single_donor = request.args.to_dict()
         response = DeleteInTable.donor(single_donor)
         return jsonify(response)
     return jsonify({"status":400,"entry":"Incorrect Method call"})
@@ -260,14 +298,91 @@ def delete_contact():
 @app.route('/bloodbank/donor/econtact',methods=['GET','POST','DELETE','PUT'])
 def select_contact():
     if request.method == 'GET':
-        data = request.args
+        data = request.args.to_dict()
         single_donor = json.loads(data)
         response = SelectInTable.donor(single_donor)
         return jsonify(response)
     return jsonify({"status":400,"entry":"Incorrect Method call"})
 
 
+############  APIs for Operator related Table###################################
+
+
+################################################################################
+
+@app.route('/operator', methods=['GET', 'DELETE', 'PUT'])
+def operator_table():
+
+  #Get list of all operators
+  if request.method == 'GET':
+      operator_entry = request.get_json()
+      response = Operators.get_operator(operator_entry)
+      return jsonify(response)
+
+  if request.method == 'PUT':
+      operator_entry = request.get_json()
+      response = Operators.update_operator(operator_entry)
+      return jsonify(response)
+  # return jsonify({"status":400,"entry":"Incorrect Method call"})
+
+  if request.method == 'DELETE':
+      operator_entry = request.args.to_dict()
+      response = Operators.delete_operator(operator_entry)
+      return jsonify(response)
+      # return jsonify({"status":400,"entry":"Incorrect Method call"})
+
+  return jsonify({"status": 400, "entry": "Incorrect Method call"})
+
+
+
+
+############  APIs for Blood DOnation related Table###################################
+
+
+################################################################################
+
+
+@app.route('/blood_donation_event', methods=['GET', 'POST', 'DELETE', 'PUT'])
+def blood_donation_event_table():
+
+  if request.method == 'GET':
+      blood_donation_event_entry = request.get_json()
+      # blood_donation_event_entry = json.loads(data)
+      response = Blood_donation_event.get_blood_donation_event(blood_donation_event_entry)
+      return jsonify(response)
+
+  if request.method == 'POST':
+      blood_donation_event_entry = request.get_json()
+      # blood_donation_event_entry = json.loads(data)
+      response = Blood_donation_event.insert_blood_donation_event(blood_donation_event_entry)
+      return jsonify(response)
+  # return jsonify({"status":400,"entry":"Incorrect Method call"})
+
+  if request.method == 'PUT':
+      blood_donation_event_entry = request.get_json()
+      # blood_donation_event_entry = json.loads(data)
+      response = Blood_donation_event.update_blood_donation_event(blood_donation_event_entry)
+      return jsonify(response)
+  # return jsonify({"status":400,"entry":"Incorrect Method call"})
+
+  if request.method == 'DELETE':
+      event = request.args.to_dict()
+      response = Blood_donation_event.delete_blood_donation_event(event)
+      return jsonify(response)
+  # return jsonify({"status":400,"entry":"Incorrect Method call"})
+
+  return jsonify({"status": 400, "entry": "Incorrect Method call"})
+
+@app.route('/<operator_id>/blood_donation_event/all', methods=['GET', 'POST', 'DELETE', 'PUT'])
+def list_all_event_list_of_operator(operator_id):
+  response = Blood_donation_event.get_operator_vent_list(operator_id)
+  return jsonify(response)
+
+@app.route('/')
+def success():
+  return "Success"
 
 
 if __name__ == '__main__':
-  app.run(port=5000)
+  app.run(host='0.0.0.0',debug=True)
+  
