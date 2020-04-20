@@ -29,7 +29,7 @@ class InsertInTable:
                 var_Donor = cursor.execute("SELECT MAX(Donor_id) FROM DONOR;")
             except mysql.Error as err:
                 print("Failed to add donor entry: {}".format(err))
-                return {"status": 500, "entry": str(err)}
+                return {"status": 500, "message": str(err)}
 
             # Need to update this based on what Salman is expecting
             t = tuple(single_donor['Emails'].values())
@@ -40,7 +40,7 @@ class InsertInTable:
                     db.commit()
                 except mysql.Error as err:
                     print("Failed to add donor email entry: {}".format(err))
-                    return {"status": 500, "entry": str(err)}
+                    return {"status": 500, "message": str(err)}
 
             # Need to update this based on what Salman is expecting
             # Mulitple phones updated assuming all infromation is present in a nested
@@ -52,7 +52,7 @@ class InsertInTable:
                     db.commit()
                 except mysql.Error as err:
                     print("Failed to add donor phone entry: {}".format(err))
-                    return {"status": 500, "entry": str(err)}
+                    return {"status": 500, "message": str(err)}
 
             # Affiiate table entry is inserted directly when a new donor is added
             t = (var_Donor, single_donor['Br_id'])
@@ -62,11 +62,11 @@ class InsertInTable:
                 db.commit()
             except mysql.Error as err:
                 print("Failed to add affiliated entry: {}".format(err))
-                return {"status": 500, "entry": str(err)}
+                return {"status": 500, "message": str(err)}
 
             db.close()
             print("Donor added successfully")
-            return {"status": 200, "entry": single_donor}
+            return {"status": 201, "message": "Success"}
         else:
             print("Unauthorised Access")
             return {"status": 401, "message": "Unauthorised Access"}
@@ -87,21 +87,23 @@ class InsertInTable:
                 db.commit()
             except mysql.Error as err:
                 print("Failed to add donor contact entry: {}".format(err))
-                return {"status": 500, "entry": str(err)}
+                return {"status": 500, "message": str(err)}
 
             # Need to update this based on what Salman is expecting
+
             t = tuple(single_donor['Phones'].values())
-            insert_query = "INSERT INTO EMERGENCY_CONTACT_EMAIL (Donor_id,Phone_no)  VALUES (%s,%s)"
+            insert_query = "INSERT INTO EMERGENCY_CONTACT_EMAIL (Phone_no,Donor_id,Email_id)  VALUES (%s,%s,%s)"
             for x in t:
                 try:
-                    cursor.execute(insert_query, (single_donor['Donor_id'], x))
+                    cursor.execute(
+                        insert_query, (single_donor['Phone_no'], single_donor['Donor_id'], x))
                     db.commit()
                 except mysql.Error as err:
                     print("Failed to add contact phones entry: {}".format(err))
-                    return {"status": 500, "entry": str(err)}
+                    return {"status": 500, "message": str(err)}
 
             db.close()
-            return {"status": 200, "entry": single_donor}
+            return {"status": 201, "message": "Success"}
         else:
             return {"status": 401, "message": "Unauthorised Access"}
 
@@ -124,7 +126,7 @@ class UpdateInTable:
                 db.commit()
             except mysql.Error as err:
                 print("Failed to add donor contact entry: {}".format(err))
-                return {"status": 500, "entry": str(err)}
+                return {"status": 500, "message": str(err)}
 
             # Need to update this based on what Salman is expecting
             t = tuple(single_donor['Emails'].values())
@@ -138,10 +140,10 @@ class UpdateInTable:
                     db.commit()
             except mysql.Error as err:
                 print("Failed to update donor email entry: {}".format(err))
-                return {"status": 500, "entry": str(err)}
+                return {"status": 500, "message": str(err)}
 
             # Need to update this based on what Salman is expecting
-            t = tuple(single_donor['Phomes'].values())
+            t = tuple(single_donor['Phones'].values())
             try:
                 delete_query = f"DELETE FROM DONOR_PHONE WHERE Donor_id = '{single_donor['Donor_id']}'"
                 cursor.execute(delete_query)
@@ -152,10 +154,10 @@ class UpdateInTable:
                     db.commit()
             except mysql.Error as err:
                 print("Failed to update donor email entry: {}".format(err))
-                return {"status": 500, "entry": str(err)}
+                return {"status": 500, "message": str(err)}
 
             db.close()
-            return {"status": 200, "entry": single_donor}
+            return {"status": 201, "message": "Success"}
         else:
             return {"status": 401, "message": "Unauthorised Access"}
 
@@ -172,7 +174,7 @@ class UpdateInTable:
                 db.commit()
             except mysql.Error as err:
                 print("Failed to update donor contact entry: {}".format(err))
-                return {"status": 500, "entry": str(err)}
+                return {"status": 500, "message": str(err)}
 
             # Need to update this based on what Salman is expecting
             t = tuple(single_donor['Emails'].values())
@@ -187,10 +189,10 @@ class UpdateInTable:
                     db.commit()
             except mysql.Error as err:
                 print("Failed to update donor comtact email entry: {}".format(err))
-                return {"status": 500, "entry": str(err)}
+                return {"status": 500, "message": str(err)}
 
             db.close()
-            return {"status": 200, "entry": single_donor}
+            return {"status": 201, "message": "Success"}
         else:
             return {"status": 401, "message": "Unauthorised Access"}
 
@@ -203,8 +205,6 @@ class DeleteInTable:
         # Delete on cascade expected to take care of the rest
         db = get_connection()
         cursor = db.cursor()
-        single_donor["Br_id"]=int(single_donor["Br_id"])
-        single_donor["Operator_id"] = int(single_donor["Operator_id"])
         if Operator.check_branch_id(single_donor["Operator_id"], single_donor["Br_id"]):
             delete_query = f"DELETE FROM DONOR_PHONE WHERE Donor_id = '{single_donor['Donor_id']}'"
             try:
@@ -212,9 +212,9 @@ class DeleteInTable:
                 db.commit()
             except mysql.Error as err:
                 print("Failed to delete entry: {}".format(err))
-                return {"status": 500, "entry": str(err)}
+                return {"status": 500, "message": str(err)}
             db.close()
-            return {"status": 200, "entry": single_donor}
+            return {"status": 200, "message": "Success"}
         else:
             return {"status": 401, "message": "Unauthorised Access"}
 
@@ -237,17 +237,17 @@ class DeleteInTable:
                         db.commit()
                     except mysql.Error as err:
                         print("Failed to delete entry: {}".format(err))
-                        return {"status": 500, "entry": str(err)}
+                        return {"status": 500, "message": str(err)}
                 else:
                     s = "Each Donor requires at least one Donor.Delete Fail"
                     print(s)
-                    return {"status": 500, "entry": s}
+                    return {"status": 500, "message": s}
             except mysql.Error as err:
                 print("Failed to get donor contact data: {}".format(err))
-                return {"status": 500, "entry": str(err)}
+                return {"status": 500, "message": str(err)}
 
             db.close()
-            return {"status": 200, "entry": single_donor}
+            return {"status": 200, "message": "Success"}
         else:
             return {"status": 401, "message": "Unauthorised Access"}
 
@@ -273,7 +273,7 @@ class SelectInTable:
             var_donor = t[0]
         except mysql.Error as err:
             print("Failed to get donor data: {}".format(err))
-            return {"status": 500, "entry": str(err)}
+            return {"status": 500, "message": str(err)}
 
         try:
             cursor.execute(
@@ -287,7 +287,7 @@ class SelectInTable:
             mydonor["Emails"] = mydemail
         except mysql.Error as err:
             print("Failed to get donor emails: {}".format(err))
-            return {"status": 500, "entry": str(err)}
+            return {"status": 500, "message": str(err)}
 
         try:
             cursor.execute(
@@ -301,7 +301,7 @@ class SelectInTable:
             mydonor["Phones"] = mydphone
         except mysql.Error as err:
             print("Failed to get donor Phones: {}".format(err))
-            return {"status": 500, "entry": str(err)}
+            return {"status": 500, "message": str(err)}
 
         try:
             cursor.execute(
@@ -309,14 +309,14 @@ class SelectInTable:
             mydonor['Br_id'] = cursor.fetchone()
         except mysql.Error as err:
             print("Failed to get donor data: {}".format(err))
-            return {"status": 500, "entry": str(err)}
+            return {"status": 500, "message": str(err)}
 
         db.close()
-        return {"status": 200, "entry": mydonor}
+        return {"status": 200, "message": mydonor}
 
     @classmethod
     def donor_contact(self, single_donor):
-        # Selects and returns data from all donor contact related tables
+        # Selects and returns data for single contact from all donor contact related tables
         # Mulitple select statements exceuted instead of a join since all data is passed in nested fashion
         db = get_connection()
         cursor = db.cursor()
@@ -330,7 +330,7 @@ class SelectInTable:
             mydonor = {'Phone_no': t[0], 'Donor_id': t[1], 'Name': t[2]}
         except mysql.Error as err:
             print("Failed to get donor contact data: {}".format(err))
-            return {"status": 500, "entry": str(err)}
+            return {"status": 500, "message": str(err)}
 
         try:
             cursor.execute(
@@ -346,13 +346,14 @@ class SelectInTable:
             mydonor["Emails"] = mydemail
         except mysql.Error as err:
             print("Failed to get donor emails: {}".format(err))
-            return {"status": 500, "entry": str(err)}
+            return {"status": 500, "message": str(err)}
 
         db.close()
-        return {"status": 200, "entry": mydonor}
+        return {"status": 200, "message": mydonor}
 
     @classmethod
     def donor_contact_all(self, single_donor):
+        # Get List of donor contacts
         db = get_connection()
         cursor = db.cursor()
 
@@ -371,7 +372,7 @@ class SelectInTable:
             mydonor["Emergency_Contacts"] = mydonorc
         except mysql.Error as err:
             print("Failed to get donor contact data: {}".format(err))
-            return {"status": 500, "entry": str(err)}
+            return {"status": 500, "message": str(err)}
 
         db.close()
-        return {"status": 200, "entry": mydonor}
+        return {"status": 200, "message": mydonor}
