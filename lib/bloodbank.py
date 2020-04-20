@@ -82,10 +82,11 @@ class Bloodbank:
     def update_bloodbank(self,bloodbank):
         db=get_connection()
         cursor = db.cursor()
-        update_query = "UPDATE BLOOD_BANK set Name=%s, Type=%s, Phone_no=%s"
+        update_query = "UPDATE BLOOD_BANK set Name=%s, Type=%s, Phone_no=%s where Bbank_id=%s"
         
         try:
-            cursor.execute(update_query,(bloodbank["Name"],bloodbank["Type"],bloodbank["Phone_no"]))
+            cursor.execute(update_query,(bloodbank["Name"],bloodbank["Type"],
+            bloodbank["Phone_no"],bloodbank["Bbank_id"]))
             db.commit()
             return {"status":201, "message":"Bloodbank Name updated Successfully"}
         except mysql.Error as err:
