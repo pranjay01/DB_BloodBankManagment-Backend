@@ -15,7 +15,7 @@ class Bloodbank:
         cursor = db.cursor()
         try:
             insert_query="INSERT INTO BLOOD_BANK (Name,Type,Phone_No)  VALUES (%s,%s,%s)"
-            cursor.execute(insert_query,( bloodbank['Name'],bloodbank['Type'],bloodbank['Phone_No']))
+            cursor.execute(insert_query,( bloodbank['Name'],bloodbank['Type'],bloodbank['Phone_no']))
             db.commit()
             return {"status":201, "message":"New Blood bank created"}
         except mysql.Error as err:
@@ -54,7 +54,7 @@ class Bloodbank:
                     blood_banks.append({"Bbank_id":row[0],"Name":row[1],
                         "Type":row[2],"Phone_no":row[3]
                         })
-                    return {"status": 200, "result":blood_banks}
+                return {"status": 200, "result":blood_banks}
             except mysql.Error as err:
                 print("Failed to fetch the blood bank details : {}".format(err))
                 return {"status": 500, "message": str(err)}
@@ -82,15 +82,10 @@ class Bloodbank:
     def update_bloodbank(self,bloodbank):
         db=get_connection()
         cursor = db.cursor()
-        update_query = "UPDATE BLOOD_BANK set"
-        args=[]
-        for key in bloodbank:
-            if bloodbank[key]:
-                update_query = update_query + "set " + key + "=%s"
-                args.append(bloodbank[key])
+        update_query = "UPDATE BLOOD_BANK set Name=%s, Type=%s, Phone_no=%s"
+        
         try:
-            argument = tuple(args)
-            cursor.execute(update_query,argument)
+            cursor.execute(update_query,(bloodbank["Name"],bloodbank["Type"],bloodbank["Phone_no"]))
             db.commit()
             return {"status":201, "message":"Bloodbank Name updated Successfully"}
         except mysql.Error as err:
