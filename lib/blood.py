@@ -137,6 +137,7 @@ class Blood:
         #return the list of blood units for a particular blood group in a particular branch of blood bank
         elif parameters["case"] == 3:
             parameters["Br_id"] = int(parameters["Br_id"])
+            parameters["Blood_Group"] = int(parameters["Blood_Group"])
             if Operator.check_branch_id(Operator_id,parameters["Br_id"]):
 
                 #select_query="SELECT Blood_id, Blood_Group, Donor_id, Donation_Date, Date_of_Expiry, Special_Attributes \
@@ -144,13 +145,13 @@ class Blood:
                 #            WHERE Br_id=%s AND Blood_Group='%s'"
 
                 select_query = f"""SELECT Blood_id, Blood_Group, Donor_id, Donation_Date, Date_of_Expiry, Special_Attributes 
-                     FROM BLOOD WHERE Br_id={parameters["Br_id"]} AND Blood_Group={2}"""            
+                     FROM BLOOD WHERE Br_id={parameters["Br_id"]} AND Blood_Group={parameters["Blood_Group"]}"""    
+
                 try:
                     cursor.execute(select_query)#,(parameters["Br_id"],parameters["Blood_Group"]))
-                    if cursor.rowcount == 0:
-                        return {"status":404, "message":"branch id or Blood_Group is wrong"}
-                    else:
-                        result = cursor.fetchall()
+                    result = cursor.fetchall()
+
+                    if result:
                         blood_units=[]
                         for row in result:
                             blood_units.append({'Blood_id':row[0], 'Blood_Group':row[1],
@@ -158,6 +159,20 @@ class Blood:
                                                 'Date_of_Expiry':row[4],'Special_Attributes':row[5],})
 
                         return {"status": 200, "result":blood_units}
+                    else:
+                        return {"status":404, "message":"branch id or Blood_Group is wrong"}
+                    
+                    # if cursor.rowcount == 0:
+                    #     return {"status":404, "message":"branch id or Blood_Group is wrong"}
+                    # else:
+                    #     result = cursor.fetchall()
+                    #     blood_units=[]
+                    #     for row in result:
+                    #         blood_units.append({'Blood_id':row[0], 'Blood_Group':row[1],
+                    #                             'Donor_id':row[2],'Donation_Date':row[3],
+                    #                             'Date_of_Expiry':row[4],'Special_Attributes':row[5],})
+
+                    #     return {"status": 200, "result":blood_units}
                 except mysql.Error as err:
                     print("Internal Server error: {}".format(err))
                     return {"status": 500, "message": str(err)}
