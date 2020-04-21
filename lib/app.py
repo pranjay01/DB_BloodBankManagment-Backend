@@ -436,7 +436,7 @@ def list_all_event_list_of_operator(operator_id):
   return jsonify(response)
 
 @app.route('/active_blood_donation_event', methods=['GET'])
-def list_all_active_event_list(operator_id):
+def list_all_active_event_list():
   response = Blood_donation_event.get_active_event_list()
   return jsonify(response)
 
