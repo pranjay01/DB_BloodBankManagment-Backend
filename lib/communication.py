@@ -61,7 +61,7 @@ def send_notification(operator_id,params):
         if phone_list:
             send_msg(phone_list,row[0],body)
         # server.quit()
-        return {"statsu":200, "message":"Notification Sent"}
+        return {"status":200, "message":"Notification Sent"}
     except mysql.Error as err:
             print("Internal Server error: {}".format(err))
             return {"status": 500, "message": str(err)}
