@@ -403,7 +403,7 @@ class BloodStock:
         if Operator.check_bankid(Operator_id,Bbank_id):
             db=get_connection()
             cursor = db.cursor()
-            select_query="select bstk.Br_id,bstk.Blood_Group,bstk.Btype_Limits from \
+            select_query="select br.Br_id,br.Br_Type,br.Street,br.City,br.Zip,bstk.Blood_Group,bstk.Btype_Limits from \
                     BLOOD_STOCK as bstk join BRANCH as br on (bstk.Br_id=br.Br_id) \
                         where Bbank_id=%s"
             try:
@@ -412,8 +412,8 @@ class BloodStock:
                 stocks=[]
                 db.commit()
                 for row in result:
-                    stocks.append({'Br_id':row[0], 'Blood_Group':row[1],
-                                        'Btype_Limits': row[2]})
+                    stocks.append({'Br_id':row[0],'Br_Type':row[1],"Street":row[2],"City":row[3],
+                    "Zip":row[4], 'Blood_Group':row[5],'Btype_Limits': row[6]})
 
 
                 db.commit()
