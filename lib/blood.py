@@ -18,10 +18,8 @@ class Blood:
             bloodGroup_query = "SELECT Blood_Group from DONOR WHERE Donor_id = %s"
             try:
                 cursor.execute(bloodGroup_query,(bloodUnit["Donor_id"],))
-                if cursor.rowcount == 0:
-                    return {"status":404, "message":"Donor id not found"}
-                else:
-                    bloodGroup = cursor.fetchone()
+                bloodGroup = cursor.fetchone() 
+                if bloodGroup:                    
                     insert_query="INSERT INTO BLOOD (Blood_Group,Br_id,Donor_id,Donation_Date, \
                                 Special_Attributes)  VALUES (%s,%s,%s,%s,%s)"
                     try:
@@ -33,13 +31,16 @@ class Blood:
                     except mysql.Error as err:
                         #print("Failed to add entry: {}".format(err))
                         return {"status": 500, "message": str(err)}
+                else:
+                    return {"status":404, "message":"Donor id not found"}
+                
             except mysql.Error as err:
                 print("Internal Server error: {}".format(err))
                 return {"status": 500, "message": str(err)}
 
             finally:
                 db.close()
-            return "success"
+            
         else:
             return {"status": 401, "message": "Unauthorised Access"}
 
