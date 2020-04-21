@@ -8,7 +8,7 @@ CREATE TABLE OPERATOR
 (
 Operator_id INT NOT NULL,
 Name VARCHAR(25)  NOT NULL,
-Email VARCHAR(25) NOT NULL,
+Email VARCHAR(25) NOT NULL UNIQUE,
 Password VARCHAR(20) NOT NULL,
 Bbank_id INT NOT NULL
 );
@@ -69,13 +69,13 @@ City VARCHAR(20),
 Zip INT CHECK (Zip BETWEEN 10000 and 99999),
 Paid_Unpaid BOOL DEFAULT false,
 Notification_Subscription BOOL DEFAULT false,
-Notification_Type ENUM('MAIL','MESSAGE') ,
+Notification_Type ENUM('E-MAIL','MESSAGE') ,
 Operator_id INT);
 
 Create table DONOR_EMAIL
 (
 Donor_id INT NOT NULL,
-Email_id VARCHAR(25) NOT NULL);
+Email_id VARCHAR(25) NOT NULL UNIQUE);
 
 Create table AFFILIATED
 (
@@ -87,14 +87,14 @@ CREATE TABLE DONOR_PHONE (
   Donor_id INT NOT NULL);
 
 CREATE TABLE EMERGENCY_CONTACT_INFO (
-  Phone_no BIGINT NOT NULL CHECK (phone_no BETWEEN 1000000000 and 9999999999),
+  Phone_no BIGINT NOT NULL,
   Donor_id INT NOT NULL,
   Name VARCHAR(25) NULL);
 
 CREATE TABLE EMERGENCY_CONTACT_EMAIL (
-  Phone_no BIGINT NOT NULL CHECK (phone_no BETWEEN 1000000000 and 9999999999),
+  Phone_no BIGINT NOT NULL,
   Donor_id INT NOT NULL,
-  Email_id VARCHAR(25) NOT NULL);
+  Email_id VARCHAR(25) NOT NULL UNIQUE);
 
 CREATE TABLE DBA_LOGIN_CREDENTIALS (
   DBA_id INT NOT NULL ,
@@ -298,7 +298,7 @@ DELIMITER ;
 
 DELIMITER $$
 USE Blood_Donation_Project $$
-CREATE PROCEDURE bloodbank_wise_stock () 
+CREATE PROCEDURE bloodbank_wise_stock (IN bnk_id INT) 
 BEGIN
 SELECT Bbank_id,Name as Blood_Bank_Name, count(Blood_id) as Blood_Unit_Count
 from BLOOD_BANK left join (
@@ -308,6 +308,23 @@ from BRANCH left join BLOOD on
 ) as tmp on (tmp.Bank_id=BLOOD_BANK.Bbank_id)
 group by Bbank_id,Name;
 END$$
+
+DELIMITER ;
+
+
+
+DELIMITER $$
+USE Blood_Donation_Project $$
+CREATE PROCEDURE all_blood_bank_stock () 
+                        BEGIN
+                        SELECT Bbank_id,Name as Blood_Bank_Name, count(Blood_id) as Blood_Unit_Count
+                        from BLOOD_BANK left join (
+                        SELECT Blood_id , BRANCH.Bbank_id as Bank_id
+                        from BRANCH left join BLOOD on 
+                        (BRANCH.Br_id=BLOOD.Br_id AND Date_of_Expiry > CURDATE())
+                        ) as tmp on (tmp.Bank_id=BLOOD_BANK.Bbank_id)
+                        group by Bbank_id,Name;
+                        END$$
 
 DELIMITER ;
 

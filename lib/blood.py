@@ -1,5 +1,5 @@
 import mysql.connector as mysql
-from create_table import get_connection
+from connection import get_connection
 from datetime import datetime
 from user import Operator
 
@@ -13,7 +13,6 @@ class Blood:
     def insert_blood(self,bloodUnit,Operator_id):
         db=get_connection()
         cursor = db.cursor()
-
         if Operator.check_branch_id(Operator_id,bloodUnit["Br_id"]):       
             date=datetime.today().strftime('%Y-%m-%d')
             bloodGroup_query = "SELECT Blood_Group from DONOR WHERE Donor_id = %s"
@@ -32,7 +31,7 @@ class Blood:
 
                         return {"status":201, "message":"Bloodunit saved Successfully"}
                     except mysql.Error as err:
-                        print("Failed to add entry: {}".format(err))
+                        #print("Failed to add entry: {}".format(err))
                         return {"status": 500, "message": str(err)}
             except mysql.Error as err:
                 print("Internal Server error: {}".format(err))
@@ -49,20 +48,56 @@ class Blood:
     def get_blood_units(self,parameters,Operator_id):
         db=get_connection()
         cursor = db.cursor()
+        #return the total count of bolood in the blood bank
+        parameters["case"]=int(parameters["case"])
+        # tmp = {"case":int(parameters["case"])}
+        # parameters.update(tmp)
+
+        if parameters["case"] == 4:
+            parameters["Bbank_id"] = int(parameters["Bbank_id"])
+            if Operator.check_bankid(Operator_id,parameters["Bbank_id"]):
+                try:
+                    cursor.callproc('bloodbank_wise_stock',(parameters["Bbank_id"],))
+                    row={}
+                    for result in cursor.stored_results():
+                        row=result.fetchone()
+
+                    if row:
+                        blood_bank = {'Blood_Bank_Name':row[1], 'Blood_Unit_Count':row[2]}
+                        return {"status": 200, "result":blood_bank}
+                    else:
+                        return {"status":404, "message":"branch id or blood group wrong"}
+                    
+
+                except mysql.Error as err:
+                    print("Internal Server error: {}".format(err))
+                    return {"get_blood_unitsstatus": 500, "message": str(err)}
+
+                finally:
+                    db.close()
+            else:
+                return {"status": 401, "message": "Unauthorised Access"}
         #return the list containing count of blood units in each branch of a particular bank
-        if parameters["case"] == 1:
+
+        elif parameters["case"] == 1:
+            parameters["Bbank_id"] = int(parameters["Bbank_id"])
             if Operator.check_bankid(Operator_id,parameters["Bbank_id"]):
                 try:
                     cursor.callproc('branch_wise_stock',(parameters["Bbank_id"],))
-                    if cursor.rowcount == 0:
-                        return {"status":404, "message":"branch id or blood group wrong"}
-                    else:
-                        result = cursor.fetchall()
+                    rows=[]
+                    for result in cursor.stored_results():
+                        rows=result.fetchall()
+
+                    #result = cursor.stored_results()
+                    if rows:
                         blood_count=[]
-                        for row in result:
+                        for row in rows:
                             blood_count.append({'Br_id':row[0], 'Br_Type':row[1], 'Blood_Unit_Count':row[2]})
 
                         return {"status": 200, "result":blood_count}
+                    else:
+                        return {"status":404, "message":"No branches for given bank id"}
+
 
                 except mysql.Error as err:
                     print("Internal Server error: {}".format(err))
@@ -74,18 +109,22 @@ class Blood:
                 return {"status": 401, "message": "Unauthorised Access"}
         #return the list containing count of blood units of each blood group type in a particular branch
         elif parameters["case"] == 2:
+            parameters["Br_id"] = int(parameters["Br_id"])
             if Operator.check_branch_id(Operator_id,parameters["Br_id"]):   
                 try:
                     cursor.callproc('branch_stock',(parameters["Br_id"],))
-                    if cursor.rowcount == 0:
-                        return {"status":404, "message":"branch id wrong"}
-                    else:
-                        result = cursor.fetchall()
+                    rows=[]
+                    for result in cursor.stored_results():
+                        rows=result.fetchall()
+
+                    if rows:
                         blood_count=[]
-                        for row in result:
+                        for row in rows:
                             blood_count.append({'Blood_Group':row[0], 'Blood_Unit_Count':row[1]})
 
                         return {"status": 200, "result":blood_count}
+                    else:
+                        return {"status":404, "message":"branch id wrong"}
 
                 except mysql.Error as err:
                     print("Internal Server error: {}".format(err))
@@ -97,17 +136,22 @@ class Blood:
                 return {"status": 401, "message": "Unauthorised Access"}
         #return the list of blood units for a particular blood group in a particular branch of blood bank
         elif parameters["case"] == 3:
+            parameters["Br_id"] = int(parameters["Br_id"])
+            parameters["Blood_Group"] = int(parameters["Blood_Group"])
             if Operator.check_branch_id(Operator_id,parameters["Br_id"]):
 
-                select_query="SELECT Blood_id, Blood_Group, Donor_id, Donation_Date, Date_of_Expiry, Special_Attributes \
-                            FROM BLOOD \
-                            WHERE Br_id=%s AND Blood_Group=%s"
+                #select_query="SELECT Blood_id, Blood_Group, Donor_id, Donation_Date, Date_of_Expiry, Special_Attributes \
+                #            FROM BLOOD \
+                #            WHERE Br_id=%s AND Blood_Group='%s'"
+
+                select_query = f"""SELECT Blood_id, Blood_Group, Donor_id, Donation_Date, Date_of_Expiry, Special_Attributes 
+                     FROM BLOOD WHERE Br_id={parameters["Br_id"]} AND Blood_Group={parameters["Blood_Group"]}"""    
+
                 try:
-                    cursor.execute(select_query,(parameters["Br_id"],parameters["Blood_Group"]))
-                    if cursor.rowcount == 0:
-                        return {"status":404, "message":"branch id or Blood_Group is wrong"}
-                    else:
-                        result = cursor.fetchall()
+                    cursor.execute(select_query)#,(parameters["Br_id"],parameters["Blood_Group"]))
+                    result = cursor.fetchall()
+
+                    if result:
                         blood_units=[]
                         for row in result:
                             blood_units.append({'Blood_id':row[0], 'Blood_Group':row[1],
@@ -115,6 +159,20 @@ class Blood:
                                                 'Date_of_Expiry':row[4],'Special_Attributes':row[5],})
 
                         return {"status": 200, "result":blood_units}
+                    else:
+                        return {"status":404, "message":"branch id or Blood_Group is wrong"}
+                    
+                    # if cursor.rowcount == 0:
+                    #     return {"status":404, "message":"branch id or Blood_Group is wrong"}
+                    # else:
+                    #     result = cursor.fetchall()
+                    #     blood_units=[]
+                    #     for row in result:
+                    #         blood_units.append({'Blood_id':row[0], 'Blood_Group':row[1],
+                    #                             'Donor_id':row[2],'Donation_Date':row[3],
+                    #                             'Date_of_Expiry':row[4],'Special_Attributes':row[5],})
+
+                    #     return {"status": 200, "result":blood_units}
                 except mysql.Error as err:
                     print("Internal Server error: {}".format(err))
                     return {"status": 500, "message": str(err)}
@@ -130,20 +188,26 @@ class Blood:
     @classmethod
     def get_bloodunit_list_guest_user(self,parameters):
         #Return the list containing the count of blood units in each blood bank
+        parameters["case"]=int(parameters["case"])
+        db=get_connection()
+        cursor = db.cursor()
         if parameters["case"] == 1:
-            db=get_connection()
-            cursor = db.cursor()
+
             try:
-                cursor.callproc('bloodbank_wise_stock')
-                if cursor.rowcount == 0:
-                    return {"status":404, "message":"branch id or blood group wrong"}
-                else:
-                    result = cursor.fetchall()
+                cursor.callproc('all_blood_bank_stock')
+                rows=[]
+                for result in cursor.stored_results():
+                    rows=result.fetchall()
+
+                if rows:
                     blood_count=[]
-                    for row in result:
+                    for row in rows:
                         blood_count.append({'Bbank_id':row[0], 'Blood_Bank_Name':row[1], 'Blood_Unit_Count':row[2]})
 
-                    return {"status": 200, "result":blood_count}
+                    return {"status": 200, "result":blood_count}  
+                else:
+                    return {"status":404, "message":"branch id or blood group wrong"}
+
             except mysql.Error as err:
                 print("Internal Server error: {}".format(err))
                 return {"status": 500, "message": str(err)}
@@ -153,16 +217,21 @@ class Blood:
 
         #return the list containing count of blood units in each branch of a particular bank
         elif parameters["case"] == 2:
+            parameters["Bbank_id"]=int(parameters["Bbank_id"])
             try:
                 cursor.callproc('branch_wise_stock',(parameters["Bbank_id"],))
-                if cursor.rowcount == 0:
-                    return {"status":404, "message":"branch id or blood group wrong"}
-                else:
-                    result = cursor.fetchall()
+                rows=[]
+                for result in cursor.stored_results():
+                    rows=result.fetchall()
+
+                if rows:
                     blood_count=[]
-                    for row in result:
+                    for row in rows:
                         blood_count.append({'Br_id':row[0], 'Br_Type':row[1], 'Blood_Unit_Count':row[2]})
                     return {"status": 200, "result":blood_count}
+                else:
+                    return {"status":404, "message":"branch id or blood group wrong"}
+                    
             except mysql.Error as err:
                 print("Internal Server error: {}".format(err))
                 return {"get_blood_unitsstatus": 500, "message": str(err)}
@@ -172,17 +241,21 @@ class Blood:
 
         #return the list containing count of blood units of each blood group type in a particular branch
         elif parameters["case"] == 3:
+            parameters["Br_id"]=int(parameters["Br_id"])
             try:
                 cursor.callproc('branch_stock',(parameters["Br_id"],))
-                if cursor.rowcount == 0:
-                    return {"status":404, "message":"branch id wrong"}
-                else:
-                    result = cursor.fetchall()
+                rows=[]
+                for result in cursor.stored_results():
+                    rows=result.fetchall()
+
+                if rows:
                     blood_count=[]
-                    for row in result:
+                    for row in rows:
                         blood_count.append({'Blood_Group':row[0], 'Blood_Unit_Count':row[1]})
 
                     return {"status": 200, "result":blood_count}
+                else:
+                    return {"status":404, "message":"branch id wrong"}
 
             except mysql.Error as err:
                 print("Internal Server error: {}".format(err))
@@ -216,7 +289,8 @@ class Blood:
         elif parameters["case"] == 2:
             source = Operator.check_branch_id(Operator_id,parameters["from_branch"])
             target = Operator.check_branch_id(Operator_id,parameters["to_branch"])
-            if  source and target :       
+            if  source and target :
+            #if  True and True :           
                 db=get_connection()
                 cursor = db.cursor()
                 update_query="UPDATE BLOOD SET Br_id=%s WHERE Br_id=%s AND Blood_Group=%s AND Date_of_Expiry > CURDATE() LIMIT %s"
@@ -232,6 +306,7 @@ class Blood:
             return {"status": 404, "message": "Case not found"}
     @classmethod
     def delete_blood_unit(self,parameters,Operator_id):
+        parameters["Br_id"] = int(parameters["Br_id"])
         if Operator.check_branch_id(Operator_id,parameters["Br_id"]):
                 
             db=get_connection()
@@ -252,6 +327,7 @@ class Blood:
 
     @classmethod
     def get_expired_units(self,parameters,Operator_id):
+        parameters["Bbank_id"] = int(parameters["Bbank_id"])
         if Operator.check_bankid(Operator_id,parameters["Bbank_id"]):   
             db=get_connection()
             cursor = db.cursor()
@@ -263,10 +339,10 @@ class Blood:
                 blood_units=[]
                 db.commit()
                 for row in result:
-                    blood_units.append({'Blood_id':row[0], 'Blood_Group':row[2],
-                                        'Br_id': row[3],'Special_Attributes':row[1],
-                                        'Donor_id':row[4],'Donation_Date':row[5],
-                                        'Date_of_Expiry':row[6]})
+                    blood_units.append({'Blood_id':row[0], 'Blood_Group':row[1],
+                                        'Br_id': row[2],'Special_Attributes':row[6],
+                                        'Donor_id':row[3],'Donation_Date':row[4],
+                                        'Date_of_Expiry':row[5]})
 
                 return {"status": 200, "result":blood_units}
             except mysql.Error as err:
@@ -279,6 +355,7 @@ class Blood:
 
     @classmethod
     def delete_expired_units(self,parameters,Operator_id):
+        parameters["Bbank_id"] = int(parameters["Bbank_id"])
         if Operator.check_bankid(Operator_id,parameters["Bbank_id"]):   
             db=get_connection()
             cursor = db.cursor()
@@ -308,6 +385,36 @@ class BloodStock:
                 cursor.execute(update_query,(parameters["Btype_Limits"],parameters["Br_id"],parameters["Blood_Group"]))
                 db.commit()
                 return {"status":201, "message":"Bloodunit updated Successfully"}
+
+            except mysql.Error as err:
+                print("Internal Server error: {}".format(err))
+                return {"status": 500, "message": str(err)}
+            finally:
+                db.close()
+        else:
+            return {"status": 401, "message": "Unauthorised Access"}
+
+    @classmethod
+    def list_limits(self,Operator_id,parameter):
+        Bbank_id=int(parameter["Bbank_id"])
+        if Operator.check_bankid(Operator_id,Bbank_id):
+            db=get_connection()
+            cursor = db.cursor()
+            select_query="select bstk.Br_id,bstk.Blood_Group,bstk.Btype_Limits from \
+                    BLOOD_STOCK as bstk join BRANCH as br on (bstk.Br_id=br.Br_id) \
+                        where Bbank_id=%s"
+            try:
+                cursor.execute(select_query,(Bbank_id,))
+                result = cursor.fetchall()
+                stocks=[]
+                db.commit()
+                for row in result:
+                    stocks.append({'Br_id':row[0], 'Blood_Group':row[1],
+                                        'Btype_Limits': row[2]})
+
+
+                db.commit()
+                return {"status":201, "list":stocks}
 
             except mysql.Error as err:
                 print("Internal Server error: {}".format(err))

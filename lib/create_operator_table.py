@@ -2,27 +2,28 @@
 
 import mysql.connector
 from mysql.connector import errorcode
+from connection import get_connection
 
 
-def get_connection(username, userpassword):
-    try:
-        db = mysql.connector.connect(
-            host="localhost",
-            user=username,
-            passwd=userpassword,
-            database="project")
+# def get_connection(username, userpassword):
+#     try:
+#         db = mysql.connector.connect(
+#             host="localhost",
+#             user=username,
+#             passwd=userpassword,
+#             database="project")
 
-    except mysql.connector.Error as err:
-        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-            print("Something is wrong with your user name or password")
-            # return ("error token : ")
-        elif err.errno == errorcode.ER_BAD_DB_ERROR:
-            print("Database does not exist")
-            # return ("error token : ")
-        else:
-            print(err)
-            # return ("error token : ")
-    return db
+#     except mysql.connector.Error as err:
+#         if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+#             print("Something is wrong with your user name or password")
+#             # return ("error token : ")
+#         elif err.errno == errorcode.ER_BAD_DB_ERROR:
+#             print("Database does not exist")
+#             # return ("error token : ")
+#         else:
+#             print(err)
+#             # return ("error token : ")
+#     return db
 
 
 def query_string(table_name):
@@ -69,7 +70,7 @@ def drop_table(cursor, tname):
 
 
 if __name__ == '__main__':  # to not run code on import
-    db = get_connection('root','excel2020')
+    db = get_connection()
     mycursor = db.cursor()
 
     drop_table(mycursor, 'OPERATOR')

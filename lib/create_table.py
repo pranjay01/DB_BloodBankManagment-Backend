@@ -1,27 +1,35 @@
 import mysql.connector as mysql
 from mysql.connector import errorcode
+from connection import get_connection
 
 
-def get_connection():
-    try:
+# def get_connection():
+#     try:
 
-        db = mysql.connect(
-        host = "localhost",
-        user = "root",
-        passwd = "Pranjay@01",
-        database = "Blood_Donation_Project"
-        )
-    except mysql.Error as err:
-        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-            print("Something is wrong with your user name or password")
-            #return ("error token : ")
-        elif err.errno == errorcode.ER_BAD_DB_ERROR:
-            print("Database does not exist")
-            #return ("error token : ")
-        else:
-            print(err)
-            #return ("error token : ")
-    return db
+#         # db = mysql.connect(
+#         # host = "bloodbankprod.cnlv0osh7hey.us-east-2.rds.amazonaws.com",
+#         # user = "root",
+#         # passwd = "bloodbank2020",
+#         # database = "bloodbankprod",
+#         # port = 3306
+#         db = mysql.connect(
+#         host = "localhost",
+#         user = "root",
+#         passwd = "Pranjay@01",
+#         database = "Blood_Donation_Project",
+#         port = 3307
+#         )
+#     except mysql.Error as err:
+#         if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+#             print("Something is wrong with your user name or password")
+#             #return ("error token : ")
+#         elif err.errno == errorcode.ER_BAD_DB_ERROR:
+#             print("Database does not exist")
+#             #return ("error token : ")
+#         else:
+#             print(err)
+#             #return ("error token : ")
+#     return db
 
 create_blood_table_query = """CREATE TABLE IF NOT EXISTS BLOOD (Blood_id INT NOT NULL ,
                               Blood_Group ENUM('O+','A+','B+','AB+','O-','A-','B-','AB-') 
