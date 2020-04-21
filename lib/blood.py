@@ -273,12 +273,12 @@ class Blood:
     def upadate_blood_bank(self,parameters,Operator_id):              
             #update the special attributes of a particular blood unit
         if parameters["case"] == 1:
-            if Operator.check_branch_id(Operator_id,parameters["Br_id"]):       
+            if Operator.check_branch_id(Operator_id,int(parameters["Br_id"])):       
                 db=get_connection()
                 cursor = db.cursor()
                 update_query = "UPDATE BLOOD set Special_Attributes=%s where Blood_id=%s"
                 try:
-                    cursor.execute(update_query,(parameters["Special_Attributes"],parameters["Blood_id"]))
+                    cursor.execute(update_query,(parameters["Special_Attributes"],int(parameters["Blood_id"])))
                     db.commit()
                     return {"status":201, "message":"Bloodunit updated Successfully"}
                 except mysql.Error as err:
@@ -290,19 +290,44 @@ class Blood:
                 return {"status": 401, "message": "Unauthorised Access"}
     #Move asked quantity of particular blood group blood from 1 branch to other branch
         elif parameters["case"] == 2:
-            source = Operator.check_branch_id(Operator_id,parameters["from_branch"])
-            target = Operator.check_branch_id(Operator_id,parameters["to_branch"])
+            source = Operator.check_branch_id(Operator_id,int(parameters["from_branch"]))
+            target = Operator.check_branch_id(Operator_id,int(parameters["to_branch"]))
+            blood_group=['O+','A+','B+','AB+','O-','A-','B-','AB-']
+            try:
+                db=get_connection()
+                cursor = db.cursor()
+                cursor.callproc('branch_stock',(int(parameters["from_branch"]),))
+                rows=[]
+                for result in cursor.stored_results():
+                    rows=result.fetchall()
+
+                if rows:
+                    count=0
+                    for row in rows:
+                        if row[0]==blood_group[int(parameters["Blood_Group"])-1]:
+                            count = row[1]
+                    if count==0 or parameters["Count"]>count:
+                        return {"status":200, "message":"Not enough blood units to move"}
+                else:
+                      {"status": 401, "message": "Branch does not exists"}
+            except mysql.Error as err:
+                    return {"status": 500, "message": str(err)}
+            finally:
+                db.close()
             if  source and target :
             #if  True and True :           
                 db=get_connection()
                 cursor = db.cursor()
                 update_query="UPDATE BLOOD SET Br_id=%s WHERE Br_id=%s AND Blood_Group=%s AND Date_of_Expiry > CURDATE() LIMIT %s"
                 try:
-                    cursor.execute(update_query,(parameters["from_branch"],parameters["to_branch"],parameters["Blood_Group"], parameters["Count"]))
+                    cursor.execute(update_query,(int(parameters["to_branch"]),int(parameters["from_branch"]),
+                    int(parameters["Blood_Group"]), int(parameters["Count"])))
                     db.commit()
                     return {"status":201, "message":"Bloodunit updated Successfully"}            
                 except mysql.Error as err:
                     return {"status": 500, "message": str(err)}
+                finally:
+                    db.close()
             else:
                 return {"status": 401, "message": "Unauthorised Access"}
         else:

@@ -400,7 +400,7 @@ def update_password_of_operator(Operator_id):
 def blood_donation_event_table():
 
   if request.method == 'GET':
-      blood_donation_event_entry = request.get_json()
+      blood_donation_event_entry = request.args.to_dict()
       # blood_donation_event_entry = json.loads(data)
       response = Blood_donation_event.get_blood_donation_event(blood_donation_event_entry)
       return jsonify(response)
@@ -427,6 +427,8 @@ def blood_donation_event_table():
 
   return jsonify({"status": 400, "entry": "Incorrect Method call"})
 
+
+ 
 
 
 @app.route('/<operator_id>/blood_donation_event/all', methods=['GET'])

@@ -207,12 +207,14 @@ class Blood_donation_event:
         db = get_connection()
         cursor = db.cursor()
 
-        get_query = f"SELECT Drive_id,Name,Convert(varchar,Date_of_event,23) as Date_of_event,Venue,Operator_id FROM BLOOD_DONATION_EVENT WHERE Drive_id = '{blood_donation_event['Drive_id']}' \
-                        AND Operator_id = '{blood_donation_event['Operator_id']}'"
+        get_query = f"SELECT Drive_id,Name,Date_of_event,\
+        Venue,Operator_id FROM BLOOD_DONATION_EVENT WHERE Drive_id = {blood_donation_event['Drive_id']} \
+                        AND Operator_id = {blood_donation_event['Operator_id']}"
         try:
             cursor.execute(get_query)
             result = cursor.fetchone()
-            event = {"Drive_id":result[0],"Name":[1],"Date_of_event":result[2]
+            date=result[2].strftime('%Y-%m-%d')
+            event = {"Drive_id":result[0],"Name":result[1],"Date_of_event":date
             ,"Venue":result[3],"Operator_id":result[4]}
             db.commit()
             return {"status": 200, "entry": event}
