@@ -363,9 +363,9 @@ def check_active(Drive_id,Operator_id,cursor):
             date= row[0]
             dateToday=datetime.today()
             if(date > dateToday):
-                True
+                return True
             else:
-                False
+                return False
         else:
             return{"status":200,"message":"Drive id doesn't belongs to operator"}
     except mysql.Error as err:
