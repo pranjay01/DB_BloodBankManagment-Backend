@@ -1,4 +1,4 @@
-@import './variables.scss';
+@import "./variables.scss";
 
 body {
   margin: 0;
@@ -7,7 +7,6 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
 }
 
 code {
@@ -15,22 +14,22 @@ code {
     monospace;
 }
 
-.cursor{
+.cursor {
   cursor: pointer;
 }
 
 .commonbtn {
   background-color: $theme-datrk-color;
-  color:#fff;
+  color: #fff;
   margin-top: 30px;
-  border:none; 
+  border: none;
   cursor: pointer;
   font-weight: normal;
   font-family: sans-serif;
   font-size: 14px;
   padding: 8px 20px;
   outline: none;
-  border:none;
+  border: none;
   box-shadow: 0px 10px 30px 0px rgba(0, 0, 0, 0.3);
   -webkit-box-shadow: 0px 10px 30px 0px rgba(0, 0, 0, 0.3);
   -o-box-shadow: 0px 10px 30px 0px rgba(0, 0, 0, 0.3);
@@ -38,27 +37,45 @@ code {
   transition: all 300ms linear 0s;
 
   &:hover {
-      box-shadow: 0px 10px 30px 0px rgba(0, 0, 0, 0.4);
-      -webkit-box-shadow: 0px 10px 30px 0px rgba(0, 0, 0, 0.4);
-      -o-box-shadow: 0px 10px 30px 0px rgba(0, 0, 0, 0.4);
-      -moz-box-shadow: 0px 10px 30px 0px rgba(0, 0, 0, 0.4);     
+    box-shadow: 0px 10px 30px 0px rgba(0, 0, 0, 0.4);
+    -webkit-box-shadow: 0px 10px 30px 0px rgba(0, 0, 0, 0.4);
+    -o-box-shadow: 0px 10px 30px 0px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: 0px 10px 30px 0px rgba(0, 0, 0, 0.4);
   }
 }
 
-
 .noselect {
   -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-     -khtml-user-select: none; /* Konqueror HTML */
-       -moz-user-select: none; /* Firefox */
-        -ms-user-select: none; /* Internet Explorer/Edge */
-            user-select: none; /* Non-prefixed version, currently
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
 }
 
-.margin-right-5px{
+.margin-right-5px {
   margin-right: 5px;
 }
-.color-black{
-  color:black;
+.color-black {
+  color: black;
+}
+
+li.nav-item {
+  width: auto;
+  display: inline-block;
+}
+
+div.card {
+  margin-top: 1.5%;
+  margin-bottom: 0.5%;
+  width: 97%;
+  margin-left: 1.5%;
+  margin-right:1.5%;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  text-align: center;
+}
+
+.selected{
+  background-color: lightblue;
 }
