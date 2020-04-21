@@ -344,8 +344,7 @@ def operator_table():
   if request.method == 'GET':
       case = authenticate_admin(request)
       if case==1 :
-        operator_entry = request.get_json()
-        response = Operators.get_operator(operator_entry)
+        response = Operators.get_operator()
         return jsonify(response)
       else:
         return(case)

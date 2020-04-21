@@ -39,7 +39,7 @@ class Operators:
             db.close()
 
     @classmethod
-    def get_operator(self, operator):
+    def get_operator(self):
         db = get_connection()
         cursor = db.cursor()
 
