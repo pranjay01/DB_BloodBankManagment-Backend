@@ -51,7 +51,7 @@ def send_notification(operator_id,params):
         cursor.execute(bankname,(params["Bbank_id"],))
         row = cursor.fetchone()
 
-        body = params["body"] + "\n" + "Required Blood Group: " + bld_grp[params["Blood_Group"]-1]
+        body = params["body"] + "\n" + "Required Blood Group: " + bld_grp[params["Blood_Group"]-1] +"ve. "
 
         # server = smtplib.SMTP(smtp,port)
         # server.starttls()
