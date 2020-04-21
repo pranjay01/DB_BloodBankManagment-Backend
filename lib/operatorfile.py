@@ -256,7 +256,7 @@ class Blood_donation_event:
                 db=get_connection()
                 cursor = db.cursor()
                 cursor.execute(update_query,(blood_donation_event["Name"],blood_donation_event["Date_of_event"],
-                blood_donation_event["Drive_id"],blood_donation_event["Operator_id"]))
+                blood_donation_event["Venue"],blood_donation_event["Drive_id"],blood_donation_event["Operator_id"]))
                 db.commit()
                 return {"status":201, "message":"Event updated succesfully"}
             except mysql.Error as err:
