@@ -9,6 +9,7 @@ from bloodbank import Bloodbank, BloodBankBranch
 from InsertDonor import InsertInTable, UpdateInTable, SelectInTable,DeleteInTable
 from operatorfile import Operators, Blood_donation_event
 from communication import send_notification
+from flask_cors import CORS
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'dbProject'
