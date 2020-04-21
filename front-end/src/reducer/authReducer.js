@@ -1,10 +1,10 @@
 const defaultState = {
-  loginData: localStorage.loginData ? JSON.parse(localStorage.loginData) : null
+  loginData: localStorage.loginData ? JSON.parse(localStorage.loginData) : null,
 };
 
 const actionType = {
   ADD_LOGIN_DATA: "ADD_LOGIN_DATA",
-  LOGOUT: "LOGOUT"
+  LOGOUT: "LOGOUT",
 };
 const authReducer = (state = defaultState, action) => {
   switch (action.type) {
@@ -20,7 +20,7 @@ const authReducer = (state = defaultState, action) => {
   }
 };
 
-export const addLoginData = data => {
+export const addLoginData = (data) => {
   return { type: actionType.ADD_LOGIN_DATA, payload: data };
 };
 export const logOut = () => {

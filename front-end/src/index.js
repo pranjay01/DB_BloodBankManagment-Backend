@@ -5,6 +5,7 @@ import Routes from "./Routes";
 import * as serviceWorker from "./serviceWorker";
 import {Provider} from 'react-redux';
 import store from './reducer/store';
+import 'bootstrap/dist/css/bootstrap.min.css';
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>

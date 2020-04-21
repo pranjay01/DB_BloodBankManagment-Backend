@@ -7,7 +7,7 @@ import { fakeAuth, history } from "../../Routes";
 import "./index.scss";
 import { fetchFromObject, setDeep } from "../../utils/utilityFunctions";
 import Input from "../../components/Input";
-import Logo from "../../assets/images/logo.png";
+import Logo from "../../assets/images/logo.jpg";
 import BackgroundImage from "../../assets/images/background.jpg";
 
 // import BackGround from '../../assets/images/bg.jpg';
@@ -30,7 +30,7 @@ export class Login extends Component {
         // "Please enter 3 to 50 characters. Only A-Z and a-z are acceptable.",
         maxLength: 50,
         // label: "First Name *",
-        name: "email"
+        name: "email",
       },
       password: {
         type: "password",
@@ -46,9 +46,9 @@ export class Login extends Component {
         //   "Please enter 3 to 50 characters. Only A-Z and a-z are acceptable.",
         maxLength: 50,
         // label: "First Name *",
-        name: "password"
-      }
-    }
+        name: "password",
+      },
+    },
   };
 
   componentDidMount() {
@@ -72,7 +72,7 @@ export class Login extends Component {
       ? Object.keys(fetchFromObject(this.state.formConfig, rootPath))
       : Object.keys(this.state.formConfig);
     let { formConfig } = this.state;
-    keys.forEach(item => {
+    keys.forEach((item) => {
       let path = rootPath ? rootPath + "." + item : item;
       let fetchedObject = fetchFromObject(formConfig, path);
       if (fetchedObject instanceof Object) {
@@ -116,7 +116,7 @@ export class Login extends Component {
 
     return { isValid, obj };
   };
-  login = e => {
+  login = (e) => {
     e.preventDefault();
     const isFormValid = this.validateForm();
     if (isFormValid.isValid) {
@@ -127,19 +127,17 @@ export class Login extends Component {
       });
     }
   };
-  redirectToRegister = () => {
-    history.push("/register");
-  };
+
   render() {
     console.log(this.props);
     let { from } = this.props.location.state || {
-      from: { pathname: `/` }
+      from: { pathname: `/Dashboard` },
     };
     let { redirectToReferrer } = this.state;
     const { email, password } = this.state.formConfig;
 
     if (redirectToReferrer) return <Redirect to={from} />;
-
+  
     return (
       <div
         className="loginpage"
@@ -147,7 +145,7 @@ export class Login extends Component {
           backgroundImage: `url(${BackgroundImage})`,
           backgroundRepeat: "no-repeat",
           width: "100vw",
-          height: "100vh"
+          height: "100vh",
         }}
       >
         {/* <img src={BackGround}/> */}
@@ -163,14 +161,6 @@ export class Login extends Component {
             <button type="submit" className="commonbtn">
               Login
             </button>
-            <button
-              type="button"
-              className="commonbtn"
-              style={{marginTop:'10px'}}
-              onClick={this.redirectToRegister}
-            >
-              Register
-            </button>
           </div>
         </form>
       </div>
@@ -178,19 +168,16 @@ export class Login extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  auth: state.auth
+const mapStateToProps = (state) => ({
+  auth: state.auth,
 });
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
     login: (data, callback) => {
       dispatch(login(data, callback));
-    }
+    },
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Login);
+export default connect(mapStateToProps, mapDispatchToProps)(Login);
