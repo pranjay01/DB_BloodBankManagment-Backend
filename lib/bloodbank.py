@@ -167,6 +167,7 @@ class BloodBankBranch:
                 db.commit()
                 #Add branch related information into BLOOD_STOCK
                 bl_grp=['O+','A+','B+','AB+','O-','A-','B-','AB-']
+                insert_query="INSERT INTO BLOOD_STOCK (Br_id,Blood_Group) values (%s,%s)"
                 stocks=[]
                 for grp in bl_grp:
                     T=(branch_id,grp)
