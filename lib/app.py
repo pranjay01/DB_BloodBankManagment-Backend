@@ -320,7 +320,7 @@ def select_contact():
 
 ################################################################################
 
-@app.route('/operator', methods=['GET', 'DELETE', 'PUT'])
+@app.route('/operator', methods=['GET', 'DELETE'])
 def operator_table():
 
   #Get list of all operators
@@ -329,11 +329,6 @@ def operator_table():
       response = Operators.get_operator(operator_entry)
       return jsonify(response)
 
-  if request.method == 'PUT':
-      operator_entry = request.get_json()
-      response = Operators.update_operator(operator_entry)
-      return jsonify(response)
-  # return jsonify({"status":400,"entry":"Incorrect Method call"})
 
   if request.method == 'DELETE':
       operator_entry = request.args.to_dict()
@@ -343,6 +338,30 @@ def operator_table():
 
   return jsonify({"status": 400, "entry": "Incorrect Method call"})
 
+
+@app.route('/<Operator_id>/operator_name',methods=['PUT'])
+@jwt_required()
+def update_name_of_operator(Operator_id):
+    operator_entry = request.get_json()
+    response = Operators.update_operator_name(operator_entry,Operator_id)
+    return jsonify(response)
+# return jsonify({"status":400,"entry":"Incorrect Method call"})
+
+@app.route('/<Operator_id>/operator_email',methods=['PUT'])
+@jwt_required()
+def update_email_of_operator(Operator_id):
+    operator_entry = request.get_json()
+    response = Operators.update_operator_email(operator_entry,Operator_id)
+    return jsonify(response)
+# return jsonify({"status":400,"entry":"Incorrect Method call"})
+
+@app.route('/<Operator_id>/operator_password',methods=['PUT'])
+@jwt_required()
+def update_password_of_operator(Operator_id):
+    operator_entry = request.get_json()
+    response = Operators.update_operator_password(operator_entry,Operator_id)
+    return jsonify(response)
+# return jsonify({"status":400,"entry":"Incorrect Method call"})
 
 
 

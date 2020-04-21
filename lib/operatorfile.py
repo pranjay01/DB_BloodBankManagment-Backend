@@ -1,6 +1,7 @@
 import mysql.connector as mysql
 from connection import get_connection
 from datetime import datetime
+from security import authenticate
 datetime.today().strftime('%Y-%m-%d')
 
 
@@ -59,25 +60,65 @@ class Operators:
             db.close()
 
     @classmethod
-    def update_operator(self, operator):
-        db=get_connection()
-        cursor = db.cursor()
-        update_query = "UPDATE OPERATOR set"
-        args=[]
-        for key in operator:
-            if operator[key]:
-                update_query = update_query + "set " + key + "=%s"
-                args.append(operator[key])
-        try:
-            argument = tuple(args)
-            cursor.execute(update_query,argument)
-            db.commit()
-            return {"status":201, "message":"Operator details updated successfully"}
-        except mysql.Error as err:
-            print("Failed to update entry: {}".format(err))
-            return {"status": 500, "message": str(err)}
-        finally:
-            db.close()
+    def update_operator_name(self,operator_entry,Operator_id):
+        if int(Operator_id)==operator_entry["Operator_id"]:
+            db=get_connection()
+            cursor = db.cursor()
+            update_query="update OPERATOR set Name=%s where Operator_id=%s"
+            try:
+                cursor.execute(update_query,(operator_entry["Name"],operator_entry["Operator_id"]))
+                db.commit()
+                return {"status":201, "message":"Operator details updated successfully"}
+            except mysql.Error as err:
+                print("Failed to update entry: {}".format(err))
+                return {"status": 500, "message": str(err)}
+            finally:
+                db.close()
+        else:
+            return {"status": 401, "message": "Unauthorised Access"}
+
+    @classmethod
+    def update_operator_email(self,operator_entry,Operator_id):
+        if int(Operator_id)==operator_entry["Operator_id"]:
+            if authenticate(operator_entry["old_Email"],operator_entry["Password"]):
+                db=get_connection()
+                cursor = db.cursor()
+                update_query="update OPERATOR set Email=%s where Operator_id=%s"
+                try:
+                    cursor.execute(update_query,(operator_entry["new_Email"],operator_entry["Operator_id"]))
+                    db.commit()
+                    return {"status":201, "message":"Operator's email-id updated successfully"}
+                except mysql.Error as err:
+                    print("Failed to update entry: {}".format(err))
+                    return {"status": 500, "message": str(err)}
+                finally:
+                    db.close()
+            else:
+                return {"status": 401, "message": "Unauthorised Access"}
+        else:
+            return {"status": 401, "message": "Unauthorised Access"}
+
+
+    @classmethod
+    def update_operator_password(self,operator_entry,Operator_id):
+        if int(Operator_id)==operator_entry["Operator_id"]:
+            if authenticate(operator_entry["Email"],operator_entry["old_Password"]):
+                db=get_connection()
+                cursor = db.cursor()
+                update_query="update OPERATOR set Password=%s where Operator_id=%s"
+                try:
+                    cursor.execute(update_query,(operator_entry["new_Password"],operator_entry["Operator_id"]))
+                    db.commit()
+                    return {"status":201, "message":"Operator's password updated successfully"}
+                except mysql.Error as err:
+                    print("Failed to update entry: {}".format(err))
+                    return {"status": 500, "message": str(err)}
+                finally:
+                    db.close()
+            else:
+                return {"status": 401, "message": "Unauthorised Access"}
+        else:
+            return {"status": 401, "message": "Unauthorised Access"}
 
 
 
@@ -166,12 +207,15 @@ class Blood_donation_event:
         db = get_connection()
         cursor = db.cursor()
 
-        get_query = f"SELECT * FROM BLOOD_DONATION_EVENT WHERE Drive_id = '{blood_donation_event['Drive_id']}' \
+        get_query = f"SELECT Drive_id,Name,Convert(varchar,Date_of_event,23) as Date_of_event,Venue,Operator_id FROM BLOOD_DONATION_EVENT WHERE Drive_id = '{blood_donation_event['Drive_id']}' \
                         AND Operator_id = '{blood_donation_event['Operator_id']}'"
         try:
             cursor.execute(get_query)
+            result = cursor.fetchone()
+            event = {"Drive_id":result[0],"Name":[1],"Date_of_event":result[2]
+            ,"Venue":result[3],"Operator_id":result[4]}
             db.commit()
-            return {"status": 200, "entry": blood_donation_event}
+            return {"status": 200, "entry": event}
         except mysql.Error as err:
             print("Failed to fetch the blood donation event details : {}".format(err))
             return {"status": 400, "entry": str(err)}
@@ -206,17 +250,13 @@ class Blood_donation_event:
         db=get_connection()
         cursor = db.cursor()
         if check_active(blood_donation_event["Drive_id"],blood_donation_event["Operator_id"],cursor):
-            update_query = "UPDATE BLOOD_DONATION_EVENT set"
-            args=[]
-            for key in blood_donation_event:
-                if blood_donation_event[key]:
-                    update_query = update_query + "set " + key + "=%s"
-                    args.append(blood_donation_event[key])
+            update_query = "UPDATE BLOOD_DONATION_EVENT set Name = %s, \
+            Date_of_event=%s, Venue=%s where Drive_id=%s and Operator_id=%s"
             try:
                 db=get_connection()
                 cursor = db.cursor()
-                argument = tuple(args)
-                cursor.execute(update_query,argument)
+                cursor.execute(update_query,(blood_donation_event["Name"],blood_donation_event["Date_of_event"],
+                blood_donation_event["Drive_id"],blood_donation_event["Operator_id"]))
                 db.commit()
                 return {"status":201, "message":"Event updated succesfully"}
             except mysql.Error as err:
