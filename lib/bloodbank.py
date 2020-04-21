@@ -194,7 +194,7 @@ class BloodBankBranch:
                 db.commit()
 
                 delete_query="DELETE FROM BRANCH_PHONE where Br_id=%s"
-                cursor.execute(delete_query,branch["Br_id"])
+                cursor.execute(delete_query,(branch["Br_id"],))
                 db.commit()
                 
                 add_contactno(branch["Phone_no"],branch["Br_id"],cursor)
@@ -203,7 +203,7 @@ class BloodBankBranch:
                 # update_query="UPDATE BRANCH set Br_Type=%s, Street=%s, City=%s, Zip=%s where Br_id=%s"
                 # cursor.execute(update_query,( branch['Br_Type'],branch['Street'],branch['City'],branch['Zip'],branch['Br_id']))
                 # db.commit()
-                return {"status":200, "message":"Branch updated"}
+                return {"status":200, "message":"Branch updated successfully"}
             except mysql.Error as err:
                 return {"status": 500, "message": str(err)} 
             finally:
