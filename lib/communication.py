@@ -35,20 +35,20 @@ def send_notification(operator_id,params):
     try:
         db=get_connection()
         cursor = db.cursor()
-        cursor.execute(get_phone_list,(int(operator_id),2,params["Blood_Group"]))
+        cursor.execute(get_phone_list,(int(operator_id),2,int(params["Blood_Group"])))
         result = cursor.fetchall()
         phone_list=[]
         for phone in result:
             phone_list.append(str(phone[0])+'@tmomail.net')
 
-        cursor.execute(get_email_list,(int(operator_id),1,params["Blood_Group"]))
+        cursor.execute(get_email_list,(int(operator_id),1,int(params["Blood_Group"])))
         result = cursor.fetchall()
         email_list=[]
         for email in result:
             email_list.append(email[0])
         
         bankname="SELECT Name from BLOOD_BANK where Bbank_id=%s"
-        cursor.execute(bankname,(params["Bbank_id"],))
+        cursor.execute(bankname,(int(params["Bbank_id"]),))
         row = cursor.fetchone()
 
         body = params["body"] + "\n" + "Required Blood Group: " + bld_grp[params["Blood_Group"]-1] +"ve. "
