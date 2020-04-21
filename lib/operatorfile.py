@@ -361,7 +361,7 @@ def check_active(Drive_id,Operator_id,cursor):
         row = cursor.fetchone()
         if row:
             date= row[0]
-            dateToday=datetime.today().strftime('%Y-%m-%d')
+            dateToday=datetime.today()
             if(date < dateToday):
                 True
             else:
