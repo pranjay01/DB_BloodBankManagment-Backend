@@ -1,4 +1,4 @@
-from flask import Flask,request, jsonify
+from flask import Flask,request, jsonify, Response
 from blood import Blood, BloodStock
 import json
 from flask_jwt import JWT, jwt_required
@@ -10,6 +10,7 @@ from InsertDonor import InsertInTable, UpdateInTable, SelectInTable,DeleteInTabl
 from operatorfile import Operators, Blood_donation_event
 from communication import send_notification
 from flask_cors import CORS
+from Admin import login, authenticate_admin
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'dbProject'
@@ -41,51 +42,64 @@ def customized_response_handler(access_token, identity):
                   'status': 200
                    })
 
+@app.route('/admin_login', methods=['POST'])
+def admin_log():
+  admin=request.get_json()
+  response= login(admin)
+  return jsonify(response)
+
 
 #SIGNUP for Operator
 @app.route('/operator/signup', methods=['POST'])
 #API to create ne operator
 def create_operator():
-  new_operator=request.get_json()
-  #new_operator = json.loads(data)
-  if Operator.find_by_email(new_operator['Email']):
-    return jsonify({"status":400,"message":"A user with same name already exists"})
+  case = authenticate_admin(request)
+  if case==1 :
+    new_operator=request.get_json()
+    #new_operator = json.loads(data)
+    if Operator.find_by_email(new_operator['Email']):
+      return jsonify({"status":400,"message":"A user with same name already exists"})
+    else:
+      response= Operator.register(new_operator)
+      return jsonify(response)
   else:
-    response= Operator.register(new_operator)
-    return jsonify(response)
-
+    return(case)
 ############## BLOOD-Bank RELATED APIs #############################################
 #
 ####################################################################################
 
 @app.route('/bloodbank', methods=['GET','POST','DELETE','PUT'])
+
 def bloodbank_table():
-  #have 2 cases, both case api calls being done by Admin
-  # case 1: give list of all blood banks
-  # case 2: give information of only 1 particular blood bank 
-  if request.method == 'GET':
-        blood_bank_entry = request.args.to_dict()
-        response = Bloodbank.get_bloodbank(blood_bank_entry)
-        return jsonify(response)
+  case = authenticate_admin(request)
+  if case==1 :
+    #have 2 cases, both case api calls being done by Admin
+    # case 1: give list of all blood banks
+    # case 2: give information of only 1 particular blood bank 
+    if request.method == 'GET':
+          blood_bank_entry = request.args.to_dict()
+          response = Bloodbank.get_bloodbank(blood_bank_entry)
+          return jsonify(response)
 
-  # accessible by only admin
-  if request.method == 'POST':
-        blood_bank_entry = request.get_json()
-        response = Bloodbank.insert_bloodbank(blood_bank_entry)
-        return jsonify(response)
+    # accessible by only admin
+    if request.method == 'POST':
+          blood_bank_entry = request.get_json()
+          response = Bloodbank.insert_bloodbank(blood_bank_entry)
+          return jsonify(response)
 
-  if request.method == 'PUT':
-        blood_bank_entry = request.get_json()
-        response = Bloodbank.update_bloodbank(blood_bank_entry)
-        return jsonify(response)
+    if request.method == 'PUT':
+          blood_bank_entry = request.get_json()
+          response = Bloodbank.update_bloodbank(blood_bank_entry)
+          return jsonify(response)
 
-  if request.method == 'DELETE':
-        #blood_bank_entry = request.get_json()
-        blood_bank_entry = request.args.to_dict()
-        response = Bloodbank.delete_bloodbank(blood_bank_entry)
-        return jsonify(response)
-  return jsonify({"status":400,"entry":"Incorrect Method call"})
-
+    if request.method == 'DELETE':
+          #blood_bank_entry = request.get_json()
+          blood_bank_entry = request.args.to_dict()
+          response = Bloodbank.delete_bloodbank(blood_bank_entry)
+          return jsonify(response)
+    return jsonify({"status":400,"entry":"Incorrect Method call"})
+  else:
+    return(case)
 
 ############## BLOOD-BANK-BRANCHES RELATED APIs #############################################
 #Operations by Operator related to blood and blood_stock table 
@@ -182,8 +196,9 @@ def add_blood_unit(Operator_id):
 
 #API to update the minimum limit of a particular blood goup 
 #in one of the operators corresponding branch
-@jwt_required()
+
 @app.route('/<Operator_id>/blood_limit', methods=['PUT','GET'])
+@jwt_required()
 def update_limit(Operator_id):
   if request.method == 'PUT': 
     parameters = request.get_json()
@@ -196,8 +211,9 @@ def update_limit(Operator_id):
     response = BloodStock.list_limits(Operator_id,parameter)
     return jsonify(response)
 
-@jwt_required()
+
 @app.route('/<Operator_id>/expired_blood', methods=['GET','DELETE'])
+@jwt_required()
 def get_expired_bloodUnits(Operator_id):
   #return all the expired blood units of the blood bank of which operator belongs to
   if request.method == 'GET':      
@@ -326,17 +342,24 @@ def operator_table():
 
   #Get list of all operators
   if request.method == 'GET':
-      operator_entry = request.get_json()
-      response = Operators.get_operator(operator_entry)
-      return jsonify(response)
+      case = authenticate_admin(request)
+      if case==1 :
+        operator_entry = request.get_json()
+        response = Operators.get_operator(operator_entry)
+        return jsonify(response)
+      else:
+        return(case)
 
 
   if request.method == 'DELETE':
-      operator_entry = request.args.to_dict()
-      response = Operators.delete_operator(operator_entry)
-      return jsonify(response)
+      case = authenticate_admin(request)
+      if case==1 :
+        operator_entry = request.args.to_dict()
+        response = Operators.delete_operator(operator_entry)
+        return jsonify(response)
       # return jsonify({"status":400,"entry":"Incorrect Method call"})
-
+      else:
+        return(case)
   return jsonify({"status": 400, "entry": "Incorrect Method call"})
 
 

@@ -199,9 +199,9 @@ class BloodBankBranch:
                 add_contactno(branch["Phone_no"],branch["Br_id"],cursor)
                 db.commit()
 
-                update_query="UPDATE BRANCH set Br_Type=%s, Street=%s, City=%s, Zip=%s where Br_id=%s"
-                cursor.execute(update_query,( branch['Br_Type'],branch['Street'],branch['City'],branch['Zip'],branch['Br_id']))
-                db.commit()
+                # update_query="UPDATE BRANCH set Br_Type=%s, Street=%s, City=%s, Zip=%s where Br_id=%s"
+                # cursor.execute(update_query,( branch['Br_Type'],branch['Street'],branch['City'],branch['Zip'],branch['Br_id']))
+                # db.commit()
                 return {"status":200, "message":"Branch updated"}
             except mysql.Error as err:
                 return {"status": 500, "message": str(err)} 
