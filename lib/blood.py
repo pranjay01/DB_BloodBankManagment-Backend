@@ -308,7 +308,7 @@ class Blood:
                     for row in rows:
                         if row[0]==blood_group[int(parameters["Blood_Group"])-1]:
                             count = row[1]
-                    if count==0 or parameters["Count"]>count:
+                    if count==0 or int(parameters["Count"])>count:
                         return {"status":200, "message":"Not enough blood units to move"}
                 else:
                       {"status": 401, "message": "Branch does not exists"}
