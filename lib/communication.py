@@ -61,6 +61,8 @@ def send_notification(operator_id,params):
         if phone_list:
             send_msg(phone_list,row[0],body)
         # server.quit()
+        if (not email_list) and (not phone_list):
+            return {"status":200, "message":"No donor found for sending notification"}    
         return {"status":200, "message":"Notification Sent"}
     except mysql.Error as err:
             print("Internal Server error: {}".format(err))
