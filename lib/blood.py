@@ -230,7 +230,9 @@ class Blood:
                 if rows:
                     blood_count=[]
                     for row in rows:
-                        blood_count.append({'Br_id':row[0], 'Br_Type':row[1], 'Blood_Unit_Count':row[2]})
+                        blood_count.append({'Br_id':row[0], 'Br_Type':row[1],
+                        'Street':row[2], 'City':row[3],
+                         'Zip':row[4], 'Blood_Unit_Count':row[5]})
                     return {"status": 200, "result":blood_count}
                 else:
                     return {"status":404, "message":"branch id or blood group wrong"}
