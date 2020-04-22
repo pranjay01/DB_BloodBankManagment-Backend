@@ -148,7 +148,7 @@ class Blood:
                 #            WHERE Br_id=%s AND Blood_Group='%s'"
 
                 select_query = f"""SELECT Blood_id, Blood_Group, Donor_id, Donation_Date, Date_of_Expiry, Special_Attributes 
-                     FROM BLOOD WHERE Br_id={parameters["Br_id"]} AND Blood_Group={parameters["Blood_Group"]}"""    
+                     FROM BLOOD WHERE Br_id={parameters["Br_id"]} AND Blood_Group={parameters["Blood_Group"]} AND Date_of_Expiry > CURDATE()"""    
 
                 try:
                     cursor.execute(select_query)#,(parameters["Br_id"],parameters["Blood_Group"]))
@@ -325,7 +325,7 @@ class Blood:
                     cursor.execute(update_query,(int(parameters["to_branch"]),int(parameters["from_branch"]),
                     int(parameters["Blood_Group"]), int(parameters["Count"])))
                     db.commit()
-                    return {"status":201, "message":"Bloodunit updated Successfully"}            
+                    return {"status":201, "message":"Bloodunit moved Successfully"}            
                 except mysql.Error as err:
                     return {"status": 500, "message": str(err)}
                 finally:
