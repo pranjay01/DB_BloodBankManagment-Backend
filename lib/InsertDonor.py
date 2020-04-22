@@ -266,11 +266,15 @@ class SelectInTable:
                 f"""SELECT * FROM DONOR d JOIN DONOR_EMAIL e ON d.Donor_id = e.Donor_id
                 WHERE Email_id = '{single_donor['Email_id']}'""")
             t = cursor.fetchone()
-            mydonor = {'Donor_id': t[0], 'Name': t[1], 'Blood_group': t[2],
-                       'Street': t[3], 'City': t[4], 'Zip': t[5], 'Paid_Unpaid': t[6],
-                       'Notification_Subscription': t[7], 'Notification_Type': t[8],
-                       'Operator_id': t[9]}
-            var_donor = t[0]
+            if not t:
+                return {"status": 500, "message": "No donor found with given email-id"}
+            else:
+
+                mydonor = {'Donor_id': t[0], 'Name': t[1], 'Blood_group': t[2],
+                        'Street': t[3], 'City': t[4], 'Zip': t[5], 'Paid_Unpaid': t[6],
+                        'Notification_Subscription': t[7], 'Notification_Type': t[8],
+                        'Operator_id': t[9]}
+                var_donor = t[0]
         except mysql.Error as err:
             print("Failed to get donor data: {}".format(err))
             return {"status": 500, "message": str(err)}
