@@ -4,7 +4,7 @@ from werkzeug.security import safe_str_cmp
 from itsdangerous import URLSafeSerializer
 from flask import request, jsonify, Response
 from datetime import datetime
-
+from itsdangerous.exc import BadSignature
 #in seconds
 session_time=3000
 
@@ -53,14 +53,25 @@ def authenticate_admin(request):
             response.headers={'WWW-Authenticate': ' realm="Login Required"','Content-Type':'application/json'}
             return response
         s = URLSafeSerializer('project-blood-bank')
-        values=s.loads(head1[1])
-        admin = Admin.find_by_id(values[1])
-        
-        if admin["Email_id"]==values[2]:
-            dt = datetime.today()  # Get timezone naive now
-            currentseconds = dt.timestamp()
-            if values[3]> currentseconds :
-                return 1
+        try:
+            values=s.loads(head1[1])
+            admin = Admin.find_by_id(values[1])
+            
+            if admin["Email_id"]==values[2]:
+                dt = datetime.today()  # Get timezone naive now
+                currentseconds = dt.timestamp()
+                if values[3]> currentseconds :
+                    return 1
+                else:
+                    content={
+                    "description": "Signature has expired",
+                    "error": "Invalid token",
+                    "status_code": 401
+                    }
+                    response = jsonify(content)
+                    response.status_code=401
+                    response.headers={'Content-Type':'application/json'}
+                    return response
             else:
                 content={
                 "description": "Signature has expired",
@@ -71,16 +82,16 @@ def authenticate_admin(request):
                 response.status_code=401
                 response.headers={'Content-Type':'application/json'}
                 return response
-        else:
+        except BadSignature as err:
             content={
-            "description": "Signature has expired",
-            "error": "Invalid token",
-            "status_code": 401
-            }
+                    "description": "Invalid header string: Expecting value: line 1 column 1 (char 0)",
+                    "error": "Invalid token",
+                    "status_code": 401
+                    }
             response = jsonify(content)
             response.status_code=401
-            response.headers={'Content-Type':'application/json'}
             return response
+       
     else:
         content = {
                     "description": "Request does not contain an access token",
