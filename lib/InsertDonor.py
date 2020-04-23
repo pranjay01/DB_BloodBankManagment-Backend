@@ -302,7 +302,7 @@ class SelectInTable:
             i = 0
             mydphone = {}
             for row in t:
-                mydphone.update({f'Phone{i}': row[1]})
+                mydphone.update({f'Phone{i}': row[0]})
                 i = i+1
             mydonor["Phones"] = mydphone
         except mysql.Error as err:
