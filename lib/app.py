@@ -233,6 +233,15 @@ def get_expired_bloodUnits(Operator_id):
   return jsonify({"status":400,"message":"Incorrect Method call"})
 
 
+@app.route('/<Operator_id>/limit_notified', methods=['PUT','GET'])
+@jwt_required()
+def get_groups_whose_vaues_dropped_than_limit(Operator_id):
+  if request.method == 'GET': 
+    parameters = request.args.to_dict()
+    #parameters = json.loads(data)
+    response = BloodStock.limit_check(parameters,Operator_id)
+    return jsonify(response)
+  return jsonify({"status":400,"message":"Incorrect Method call"})
 
 ################################################################################
 

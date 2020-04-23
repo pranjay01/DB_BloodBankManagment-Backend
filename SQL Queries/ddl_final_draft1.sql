@@ -328,5 +328,20 @@ CREATE PROCEDURE all_blood_bank_stock ()
 
 DELIMITER ;
 
+-- procedure to get information if total blood units fall below the defined limit
+DELIMITER $$
+USE Blood_Donation_Project $$
+CREATE PROCEDURE limit_check (IN bnk_id INT) 
+BEGIN
+select stk.Br_id,br.Br_Type,stk.Blood_Group,br.City,br.Street,Btype_Limits, count(Blood_id) as Blood_Unit_Count from BLOOD_STOCK as stk left join BLOOD as bld on 
+(bld.Br_id=stk.Br_id and bld.Blood_Group=stk.Blood_Group) 
+join BRANCH as br on (br.Br_id=stk.Br_id)
+group by stk.Blood_Group,stk.Br_id,Btype_Limits,br.City,br.Street,br.Br_Type
+having stk.Br_id in (Select Br_id from BRANCH where Bbank_id=bnk_id) 
+AND Btype_Limits > Blood_Unit_Count;
+END$$
+
+DELIMITER ;
+
 -- Query for blood-Stock entity Quantity derived from blood entity 
 

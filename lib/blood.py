@@ -2,6 +2,7 @@ import mysql.connector as mysql
 from connection import get_connection
 from datetime import datetime
 from user import Operator
+from flask import Response,jsonify
 
 datetime.today().strftime('%Y-%m-%d')
 
@@ -414,7 +415,7 @@ class BloodStock:
             try:
                 cursor.execute(update_query,(parameters["Btype_Limits"],parameters["Br_id"],parameters["Blood_Group"]))
                 db.commit()
-                return {"status":201, "message":"Bloodunit updated Successfully"}
+                return {"status":201, "message":"Blood stock limit updated Successfully"}
 
             except mysql.Error as err:
                 print("Internal Server error: {}".format(err))
@@ -453,3 +454,37 @@ class BloodStock:
                 db.close()
         else:
             return {"status": 401, "message": "Unauthorised Access"}
+
+    @classmethod
+    def limit_check(self,parameters,Operator_id):
+        Bbank_id=int(parameters["Bbank_id"])
+        if Operator.check_bankid(Operator_id,Bbank_id):
+            db=get_connection()
+            cursor = db.cursor()
+            try:
+                cursor.callproc('limit_check',(Bbank_id,))
+                rows=[]
+                for result in cursor.stored_results():
+                    rows=result.fetchall()
+
+                #result = cursor.stored_results()
+                limit_fall_list=[]
+                if rows:
+                    for row in rows:
+                        limit_fall_list.append({'Br_id':row[0],'Br_Type':row[1],
+                        "Blood_Group":row[2],'City':row[3],'Street':row[4],                         
+                        'Btype_Limits':row[5],'Blood_Unit_Count':row[6]})
+
+                    return {"status": 200, "result":limit_fall_list}
+                else:
+                    return {"status": 200, "result":limit_fall_list}
+            except mysql.Error as err:
+                response = jsonify({"get_blood_unitsstatus": 500, "message": str(err)})
+                response.status_code=500
+                return response 
+            finally:
+                db.close()
+        else:
+            response = jsonify({"status": 401, "message": "Unauthorised Access"})
+            response.status_code=401
+            return response
