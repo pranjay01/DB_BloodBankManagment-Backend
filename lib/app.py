@@ -262,12 +262,11 @@ def get_blood_unit_count_for_user():
 
 ################################################################################
 
-@app.route('/bloodbank/donor/add', methods=['GET','POST','DELETE','PUT'])
 @jwt_required
+@app.route('/bloodbank/donor/add', methods=['POST'])
 def add_donor():
     if request.method == 'POST':
-        data = request.get_json()
-        single_donor = json.loads(data)
+        single_donor = request.get_json()
         response = InsertInTable.donor(single_donor)
         return jsonify(response)
     return jsonify({"status":400,"entry":"Incorrect Method call"})
@@ -276,8 +275,7 @@ def add_donor():
 @app.route('/bloodbank/donor/update',methods=['GET','POST','DELETE','PUT'])
 def update_donor():
     if request.method == 'PUT':
-        data = request.get_json()
-        single_donor = json.loads(data)
+        single_donor = request.get_json()
         response = UpdateInTable.donor(single_donor)
         return jsonify(response)
     return jsonify({"status":400,"entry":"Incorrect Method call"})

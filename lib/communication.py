@@ -26,22 +26,24 @@ subject_content="Urgent Blood Needed\n"
 #login
 def send_notification(operator_id,params):
     get_phone_list = "select Phone_no from DONOR_PHONE as dp join DONOR as dn on \
-                    (dp.Donor_id=dn.Donor_id) where Operator_id=%s and Notification_Subscription=true\
-                        and Notification_Type=%s and Blood_Group=%s"
-    get_email_list = "select Email_id from DONOR_EMAIL as de join DONOR as dn on \
-                    (de.Donor_id=dn.Donor_id) where Operator_id=%s and Notification_Subscription=true\
-                        and Notification_Type=%s and Blood_Group=%s"     
+                    (dp.Donor_id=dn.Donor_id) where Notification_Subscription=true \
+                        and Notification_Type=%s and Blood_Group=%s and dn.Donor_id  \
+                        in (select Donor_id from AFFILIATED where Operator_id=%s)"
+    get_email_list = "select Phone_no from DONOR_PHONE as dp join DONOR as dn on \
+                    (dp.Donor_id=dn.Donor_id) where Notification_Subscription=true \
+                        and Notification_Type=%s and Blood_Group=%s and dn.Donor_id  \
+                        in (select Donor_id from AFFILIATED where Operator_id=%s)"     
     
     try:
         db=get_connection()
         cursor = db.cursor()
-        cursor.execute(get_phone_list,(int(operator_id),2,int(params["Blood_Group"])))
+        cursor.execute(get_phone_list,(2,int(params["Blood_Group"]),int(operator_id)))
         result = cursor.fetchall()
         phone_list=[]
         for phone in result:
             phone_list.append(str(phone[0])+'@tmomail.net')
 
-        cursor.execute(get_email_list,(int(operator_id),1,int(params["Blood_Group"])))
+        cursor.execute(get_email_list,(1,int(params["Blood_Group"]),int(operator_id)))
         result = cursor.fetchall()
         email_list=[]
         for email in result:

@@ -11,22 +11,23 @@ class InsertInTable:
         # DONOR DONOR_EMAIL DONOR_PHONE AFFILIATED
         db = get_connection()
         cursor = db.cursor()
-        if Operator.check_branch_id(single_donor["Operator_id"], single_donor["Br_id"]):
+        branch_id=int(single_donor["Br_id"])
+        if Operator.check_branch_id(single_donor["Operator_id"], branch_id):
 
             insert_query = """INSERT INTO DONOR
             (Donor_id,Name,Blood_group,Street,City,Zip,Paid_Unpaid,Notification_Subscription,Notification_Type,Operator_id)
             VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
-            t = (None, single_donor['Name'], single_donor['Blood_group'],
+            t = (None, single_donor['Name'], int(single_donor['Blood_Group']),
                  single_donor['Street'], single_donor['City'], single_donor['Zip'], single_donor['Paid_Unpaid'],
-                 single_donor['Notification_Subscription'], single_donor['Notification_Type'], single_donor['Operator_id'])
+                 single_donor['Notification_Subscription'], single_donor['Notification_Type'], int(single_donor['Operator_id']))
 
             try:
                 cursor.execute(insert_query, t)
+                new_donor_id=cursor.lastrowid
                 db.commit()
 
                 # Last Donor ID is assumed to be the MAX()
                 # LAST_INSERT_ID() is not working with multiple connnects
-                var_Donor = cursor.execute("SELECT MAX(Donor_id) FROM DONOR;")
             except mysql.Error as err:
                 print("Failed to add donor entry: {}".format(err))
                 return {"status": 500, "message": str(err)}
@@ -36,7 +37,7 @@ class InsertInTable:
             insert_query = "INSERT INTO DONOR_EMAIL (Donor_id,Email_id)  VALUES (%s,%s)"
             for x in t:
                 try:
-                    cursor.execute(insert_query, (var_Donor, x))
+                    cursor.execute(insert_query, (new_donor_id, x))
                     db.commit()
                 except mysql.Error as err:
                     print("Failed to add donor email entry: {}".format(err))
@@ -48,14 +49,14 @@ class InsertInTable:
             insert_query = "INSERT INTO DONOR_PHONE (Donor_id,Phone_no)  VALUES (%s,%s)"
             for x in t:
                 try:
-                    cursor.execute(insert_query, (var_Donor, x))
+                    cursor.execute(insert_query, (new_donor_id, x))
                     db.commit()
                 except mysql.Error as err:
                     print("Failed to add donor phone entry: {}".format(err))
                     return {"status": 500, "message": str(err)}
 
             # Affiiate table entry is inserted directly when a new donor is added
-            t = (var_Donor, single_donor['Br_id'])
+            t = (new_donor_id, single_donor['Br_id'])
             insert_query = "INSERT INTO AFFILIATED (Donor_id,Br_id)  VALUES (%s,%s)"
             try:
                 cursor.execute(insert_query, t)
@@ -203,10 +204,11 @@ class DeleteInTable:
     def donor(self, single_donor):
         # Member function only deletes donor from the DONOR table
         # Delete on cascade expected to take care of the rest
+        bank_id=int(single_donor["Bbank_id"])
         db = get_connection()
         cursor = db.cursor()
-        if Operator.check_branch_id(single_donor["Operator_id"], single_donor["Br_id"]):
-            delete_query = f"DELETE FROM DONOR_PHONE WHERE Donor_id = '{single_donor['Donor_id']}'"
+        if Operator.check_bankid(single_donor["Operator_id"], bank_id):
+            delete_query = f"DELETE FROM DONOR_PHONE WHERE Donor_id = {int(single_donor['Donor_id'])}"
             try:
                 cursor.execute(delete_query)
                 db.commit()

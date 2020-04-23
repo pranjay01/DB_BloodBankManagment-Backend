@@ -277,7 +277,7 @@ class BloodBankBranch:
     @classmethod
     def get_all_branches(self,Bbank_id,Operator_id):
         Bbank_id = int(Bbank_id)
-        if True: #Operator.check_bankid(Operator_id,Bbank_id):
+        if Operator.check_bankid(Operator_id,Bbank_id):
             db=get_connection()
             cursor = db.cursor()
             try:
