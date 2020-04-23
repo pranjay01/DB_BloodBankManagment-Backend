@@ -210,7 +210,7 @@ class DeleteInTable:
         db = get_connection()
         cursor = db.cursor()
         if Operator.check_bankid(single_donor["Operator_id"], bank_id):
-            delete_query = f"DELETE FROM DONOR WHERE Donor_id = {int(single_donor['Donor_id'])} AND Phone_no={int(single_donor['Donor_id'])}"
+            delete_query = f"DELETE FROM DONOR WHERE Donor_id = {int(single_donor['Donor_id'])} "
             try:
                 cursor.execute(delete_query)
                 db.commit()
@@ -227,35 +227,31 @@ class DeleteInTable:
         # Member function only to delete ONE donor contact from the DONOR_CONTACT table
         db = get_connection()
         cursor = db.cursor()
-        if Operator.check_bankid(single_donor["Operator_id"], single_donor["Bbank_id"]):
-            try:
-                cursor.execute(f"""SELECT * FROM EMERGENCY_CONTACT_INFO
-                    WHERE Donor_id = '{single_donor['Donor_id']}'""")
-                t = cursor.fetchall()
-                if (len(t) > 1):
-                    delete_query = f"""DELETE FROM EMERGENCY_CONTACT_INFO
-                    WHERE Donor_id = '{single_donor['Donor_id']}'
-                    AND Phone_no = '{single_donor['Phone_no']}'"""
-                    try:
-                        cursor.execute(delete_query)
-                        db.commit()
-                    except mysql.Error as err:
-                        print("Failed to delete entry: {}".format(err))
-                        return {"status": 500, "message": str(err)}
-                else:
-                    s = "Each Donor requires at least one Donor.Delete Fail"
-                    print(s)
-                    return {"status": 500, "message": s}
-            except mysql.Error as err:
-                print("Failed to get donor contact data: {}".format(err))
-                return {"status": 500, "message": str(err)}
+        try:
+            cursor.execute(f"""SELECT * FROM EMERGENCY_CONTACT_INFO
+                WHERE Donor_id = '{single_donor['Donor_id']}'""")
+            t = cursor.fetchall()
+            if (len(t) > 1):
+                delete_query = f"""DELETE FROM EMERGENCY_CONTACT_INFO
+                WHERE Donor_id = '{single_donor['Donor_id']}'
+                AND Phone_no = '{single_donor['Phone_no']}'"""
+                try:
+                    cursor.execute(delete_query)
+                    db.commit()
+                except mysql.Error as err:
+                    print("Failed to delete entry: {}".format(err))
+                    return {"status": 500, "message": str(err)}
+            else:
+                s = "Each Donor requires at least one Donor.Delete Fail"
+                print(s)
+                return {"status": 500, "message": s}
+        except mysql.Error as err:
+            print("Failed to get donor contact data: {}".format(err))
+            return {"status": 500, "message": str(err)}
 
-            db.close()
-            return {"status": 200, "message": "Success"}
-        else:
-            return {"status": 401, "message": "Unauthorised Access"}
-
-
+        db.close()
+        return {"status": 200, "message": "Success"}
+    
 class SelectInTable:
 
     @classmethod

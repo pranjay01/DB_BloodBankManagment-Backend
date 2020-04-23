@@ -339,7 +339,7 @@ def update_contact():
 def delete_contact():
     if request.method == 'DELETE':
         single_donor = request.args.to_dict()
-        response = DeleteInTable.donor(single_donor)
+        response = DeleteInTable.donor_contact(single_donor)
         return jsonify(response)
     return jsonify({"status":400,"entry":"Incorrect Method call"})
 
