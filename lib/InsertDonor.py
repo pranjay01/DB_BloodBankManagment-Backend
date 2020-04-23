@@ -208,7 +208,7 @@ class DeleteInTable:
         db = get_connection()
         cursor = db.cursor()
         if Operator.check_bankid(single_donor["Operator_id"], bank_id):
-            delete_query = f"DELETE FROM DONOR_PHONE WHERE Donor_id = {int(single_donor['Donor_id'])}"
+            delete_query = f"DELETE FROM DONOR WHERE Donor_id = {int(single_donor['Donor_id'])}"
             try:
                 cursor.execute(delete_query)
                 db.commit()
