@@ -1,11 +1,13 @@
+#SJSU CMPE 138Spring2020 TEAM7
+
 import mysql.connector as mysql
-from create_donor_table import get_connection
+from connection import get_connection
 
 class InsertInTable:
 
     @classmethod
     def branch(self, single_branch):
-        db = get_connection('root', 'Parihar2019')
+        db = get_connection()
         cursor = db.cursor()
         insert_query = """INSERT INTO BRANCH
         (Br_id,Br_Type,Bbank_id,Street,City,Zip)
@@ -26,7 +28,7 @@ class UpdateInTable:
 
     @classmethod
     def branch(self, single_branch):
-        db = get_connection('root', 'Parihar2019')
+        db = get_connection()
         # prepare query and data
         update_query = """ UPDATE BRANCH SET  Br_Type = %s, Bbank_id = %s, Street = %s, City = %s, Zip = %s WHERE  Br_id = %s """
         data = (single_branch['Br_Type'], single_branch['Bbank_id'],
@@ -44,7 +46,7 @@ class DeleteInTable:
 
     @classmethod
     def branch(self, single_branch):
-        db = get_connection('root', 'Parihar2019')
+        db = get_connection()
         cursor = db.cursor()
         insert_query = f"DELETE FROM BRANCH WHERE Br_id = '{single_branch['Br_id']}'"
         try:
@@ -60,7 +62,7 @@ class SelectInTable:
 
     @classmethod
     def branch(self, single_branch):
-        db = get_connection('root', 'Parihar2019')
+        db = get_connection()
         cursor = db.cursor(dictionary=True)
 
         try:

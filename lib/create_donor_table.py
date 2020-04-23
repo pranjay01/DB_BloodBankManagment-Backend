@@ -1,3 +1,5 @@
+#SJSU CMPE 138Spring2020 TEAM7
+
 # To create DB Tables for Donor, Donor_email, Donor_phone, EMERGENCY_CONTACT_INFO, EMERGENCY_CONTACT_EMAIL
 
 import mysql.connector 

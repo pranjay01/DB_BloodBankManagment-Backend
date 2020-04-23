@@ -1,3 +1,5 @@
+#SJSU CMPE 138Spring2020 TEAM7
+
 from flask import Flask,request, jsonify, Response
 from blood import Blood, BloodStock
 import json

@@ -1,3 +1,5 @@
+#SJSU CMPE 138Spring2020 TEAM7
+
 import mysql.connector as mysql
 from connection import get_connection
 from user import Operator

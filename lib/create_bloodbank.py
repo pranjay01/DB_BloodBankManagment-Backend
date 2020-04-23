@@ -1,3 +1,5 @@
+#SJSU CMPE 138Spring2020 TEAM7
+
 # Creeating table for bloodbak a, seeting primary key and auto-increment constraint
 import mysql.connector as mysql
 from mysql.connector import errorcode

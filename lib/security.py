@@ -1,3 +1,5 @@
+#SJSU CMPE 138Spring2020 TEAM7
+
 from werkzeug.security import safe_str_cmp
 from user import Operator
 import base64

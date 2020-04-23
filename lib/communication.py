@@ -1,3 +1,5 @@
+#SJSU CMPE 138Spring2020 TEAM7
+
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart

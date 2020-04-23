@@ -1,3 +1,5 @@
+#SJSU CMPE 138Spring2020 TEAM7
+
 # To create DB Tables for OPERATOR, BLOOD_DONATION_EVENT...
 
 import mysql.connector

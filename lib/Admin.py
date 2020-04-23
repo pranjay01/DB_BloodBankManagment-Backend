@@ -1,3 +1,5 @@
+#SJSU CMPE 138Spring2020 TEAM7
+
 import mysql.connector as mysql
 from connection import get_connection
 from werkzeug.security import safe_str_cmp
@@ -82,7 +84,7 @@ def authenticate_admin(request):
                 response.status_code=401
                 response.headers={'Content-Type':'application/json'}
                 return response
-        except BadSignature as err:
+        except BadSignature:
             content={
                     "description": "Invalid header string: Expecting value: line 1 column 1 (char 0)",
                     "error": "Invalid token",

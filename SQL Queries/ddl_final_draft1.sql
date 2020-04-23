@@ -1,3 +1,5 @@
+-- SJSU CMPE 138Spring2020 TEAM7
+
 DROP database if EXISTS Blood_Donation_Project;
 
 CREATE database Blood_Donation_Project;
