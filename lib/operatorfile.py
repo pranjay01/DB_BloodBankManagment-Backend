@@ -43,14 +43,15 @@ class Operators:
         db = get_connection()
         cursor = db.cursor()
 
-        get_query = "SELECT * FROM OPERATOR "
+        get_query = "SELECT opr.Operator_id,opr.Name, opr.Email,opr.Bbank_id,bb.Name \
+                    FROM OPERATOR as opr join BLOOD_BANK as bb on (bb.Bbank_id=opr.Bbank_id)"
         try:
             cursor.execute(get_query)
             result = cursor.fetchall()
             operator_list=[]
             for row in result:
                 operator_list.append({"Operator_id":row[0], "Name":row[1],
-                "Email":row[2], "Bbank_id":row[4]})
+                "Email":row[2], "Bbank_id":row[3],"Bbank_Name":row[4]})
             db.commit()
             return {"status": 200, "operator_list": operator_list}
         except mysql.Error as err:
