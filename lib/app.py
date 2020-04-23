@@ -301,11 +301,16 @@ def select_donor():
 
 @jwt_required
 @app.route('/bloodbank/donor/econtact',methods=['GET','POST','DELETE','PUT'])
-def add_contact():
+def add__get_contact():
     if request.method == 'POST':
         data = request.get_json()
         single_donor = json.loads(data)
         response = InsertInTable.donor_contact(single_donor)
+        return jsonify(response)
+    if request.method == 'GET':
+        data = request.args.to_dict()
+        single_donor = json.loads(data)
+        response = SelectInTable.donor(single_donor)
         return jsonify(response)
     return jsonify({"status":400,"entry":"Incorrect Method call"})
 
@@ -329,14 +334,14 @@ def delete_contact():
     return jsonify({"status":400,"entry":"Incorrect Method call"})
 
 
-@app.route('/bloodbank/donor/econtact',methods=['GET','POST','DELETE','PUT'])
-def select_contact():
-    if request.method == 'GET':
-        data = request.args.to_dict()
-        single_donor = json.loads(data)
-        response = SelectInTable.donor(single_donor)
-        return jsonify(response)
-    return jsonify({"status":400,"entry":"Incorrect Method call"})
+# @app.route('/bloodbank/donor/econtact',methods=['GET','POST','DELETE','PUT'])
+# def select_contact():
+#     if request.method == 'GET':
+#         data = request.args.to_dict()
+#         single_donor = json.loads(data)
+#         response = SelectInTable.donor(single_donor)
+#         return jsonify(response)
+#     return jsonify({"status":400,"entry":"Incorrect Method call"})
 
 
 ############  APIs for Operator related Table###################################
