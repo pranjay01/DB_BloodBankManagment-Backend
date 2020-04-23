@@ -312,7 +312,8 @@ class SelectInTable:
         try:
             cursor.execute(
                 f"SELECT Br_id FROM AFFILIATED WHERE Donor_id = '{var_donor}'")
-            mydonor['Br_id'] = cursor.fetchone()
+            row=cursor.fetchone()
+            mydonor['Br_id'] = row[0]
         except mysql.Error as err:
             print("Failed to get donor data: {}".format(err))
             return {"status": 500, "message": str(err)}
