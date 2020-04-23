@@ -308,9 +308,17 @@ def add__get_contact():
         response = InsertInTable.donor_contact(single_donor)
         return jsonify(response)
     if request.method == 'GET':
-        data = request.args.to_dict()
-        single_donor = json.loads(data)
-        response = SelectInTable.donor(single_donor)
+        single_donor = request.args.to_dict()
+        response = SelectInTable.get_donor_emergency_contact(single_donor)
+        return jsonify(response)
+    return jsonify({"status":400,"entry":"Incorrect Method call"})
+
+@jwt_required
+@app.route('/bloodbank/donor/econtact_email',methods=['GET'])
+def get_donor_econtact_email():
+    if request.method == 'GET':
+        single_donor = request.args.to_dict()
+        response = SelectInTable.get_complete_econtact_info(single_donor)
         return jsonify(response)
     return jsonify({"status":400,"entry":"Incorrect Method call"})
 
@@ -334,14 +342,6 @@ def delete_contact():
     return jsonify({"status":400,"entry":"Incorrect Method call"})
 
 
-# @app.route('/bloodbank/donor/econtact',methods=['GET','POST','DELETE','PUT'])
-# def select_contact():
-#     if request.method == 'GET':
-#         data = request.args.to_dict()
-#         single_donor = json.loads(data)
-#         response = SelectInTable.donor(single_donor)
-#         return jsonify(response)
-#     return jsonify({"status":400,"entry":"Incorrect Method call"})
 
 
 ############  APIs for Operator related Table###################################

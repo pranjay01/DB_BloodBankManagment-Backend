@@ -322,6 +322,66 @@ class SelectInTable:
         return {"status": 200, "message": mydonor}
 
     @classmethod
+    def get_donor_emergency_contact(self, single_donor):
+        db = get_connection()
+        cursor = db.cursor()
+        try:
+            select_query = "select * from EMERGENCY_CONTACT_INFO where Donor_id=%s"
+            cursor.execute(select_query,(int(single_donor["Donor_id"]),))
+            result = cursor.fetchall()
+            contact_list=[]
+            if result:
+                for row in result:
+                    contact_list.append({"Donor_id":row[1],"Name":row[2],"Phone_no":row[0]})
+                return {"status":200, "contact_list":contact_list}
+            else:
+                return {"status":200, "contact_list":contact_list}
+        except mysql.Error as err:
+            print("Failed to get donor data: {}".format(err))
+            return {"status": 500, "message": str(err)}
+        finally:
+            db.close()
+
+    @classmethod
+    def get_complete_econtact_info(self, single_donor):
+        db = get_connection()
+        cursor = db.cursor()
+        try:
+            select_query = "select * from EMERGENCY_CONTACT_INFO \
+                where Donor_id=%s AND Phone_no=%s"
+            cursor.execute(select_query,(int(single_donor["Donor_id"]),single_donor["Phone_no"]))
+            result = cursor.fetchone()
+            contact_info={}
+            if result:
+                contact_info = {"Donor_id":result[1],"Name":result[2],"Phone_no":result[0]}
+            else:
+                return {"status":200, "contact_info":contact_info}
+
+            select_query = "select * from EMERGENCY_CONTACT_EMAIL \
+                where Donor_id=%s AND Phone_no=%s"
+
+            result = cursor.fetchall()
+            email_list={}
+            i=1
+            if result:
+                for row in result:
+                    tmp = {f"Email-{i}":row[0]}
+                    email_list.update(tmp)
+                    i+=1
+                tmp = {"Email_id":email_list}
+                contact_info.update(tmp)
+                return {"status":200, "contact_list":contact_info}
+            else:
+                return {"status":200, "contact_list":contact_info}
+            
+        except mysql.Error as err:
+            print("Failed to get donor data: {}".format(err))
+            return {"status": 500, "message": str(err)}
+        finally:
+            db.close()
+
+
+    @classmethod
     def donor_contact(self, single_donor):
         # Selects and returns data for single contact from all donor contact related tables
         # Mulitple select statements exceuted instead of a join since all data is passed in nested fashion
