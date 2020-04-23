@@ -314,7 +314,7 @@ def add__get_contact():
     return jsonify({"status":400,"entry":"Incorrect Method call"})
 
 @jwt_required
-@app.route('/bloodbank/donor/econtact_email',methods=['GET'])
+@app.route('/bloodbank/donor/contact',methods=['GET'])
 def get_donor_econtact_email():
     if request.method == 'GET':
         single_donor = request.args.to_dict()
