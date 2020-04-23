@@ -333,7 +333,8 @@ DELIMITER $$
 USE Blood_Donation_Project $$
 CREATE PROCEDURE limit_check (IN bnk_id INT) 
 BEGIN
-select stk.Br_id,br.Br_Type,stk.Blood_Group,br.City,br.Street,Btype_Limits, count(Blood_id) as Blood_Unit_Count from BLOOD_STOCK as stk left join BLOOD as bld on 
+select stk.Br_id,br.Br_Type,stk.Blood_Group,br.City,br.Street,Btype_Limits, 
+count(Blood_id) as Blood_Unit_Count from BLOOD_STOCK as stk left join BLOOD as bld on 
 (bld.Br_id=stk.Br_id and bld.Blood_Group=stk.Blood_Group) 
 join BRANCH as br on (br.Br_id=stk.Br_id)
 group by stk.Blood_Group,stk.Br_id,Btype_Limits,br.City,br.Street,br.Br_Type
