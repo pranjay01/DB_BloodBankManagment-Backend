@@ -349,7 +349,7 @@ class SelectInTable:
         try:
             select_query = "select * from EMERGENCY_CONTACT_INFO \
                 where Donor_id=%s AND Phone_no=%s"
-            cursor.execute(select_query,(int(single_donor["Donor_id"]),single_donor["Phone_no"]))
+            cursor.execute(select_query,(int(single_donor["Donor_id"]),int(single_donor["Phone_no"])))
             result = cursor.fetchone()
             contact_info={}
             if result:
@@ -359,6 +359,7 @@ class SelectInTable:
 
             select_query = "select * from EMERGENCY_CONTACT_EMAIL \
                 where Donor_id=%s AND Phone_no=%s"
+            cursor.execute(select_query,(int(single_donor["Donor_id"]),int(single_donor["Phone_no"])))
 
             result = cursor.fetchall()
             email_list={}
