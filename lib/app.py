@@ -46,7 +46,7 @@ def customized_response_handler(access_token, identity):
 def admin_log():
   admin=request.get_json()
   response= login(admin)
-  return jsonify(response)
+  return response
 
 
 #SIGNUP for Operator

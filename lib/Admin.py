@@ -15,7 +15,16 @@ def login(admin_details):
         token = generate_token(admin["DBA_id"],admin_details["Email_id"])
         tmp = {"access_token":token}
         admin.update(tmp)
-        return admin
+        return jsonify(admin)
+    else:
+        content = {
+                    "description": "Email-id or password is wrong",
+                    "error": "Access Forbidden",
+                    "status_code": 403
+                    }  
+        response = jsonify(content)
+        response.status_code=403
+        return response
 
 
 def generate_token(id,Email_id):    
