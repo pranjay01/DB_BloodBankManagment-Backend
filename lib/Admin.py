@@ -29,9 +29,22 @@ def generate_token(id,Email_id):
 
 def authenticate_admin(request):
     head = request.headers.get('Authorization', None)
+    
     if head:
+        head1 = head.split()
+        #head1 = head1[1]
+        if len(head1)<2 or not head1:
+            content = {
+                        "description": "Request does not contain an access token",
+                        "error": "Authorization Required",
+                        "status_code": 401
+                        }
+            response = jsonify(content)
+            response.status_code=401
+            response.headers={'WWW-Authenticate': ' realm="Login Required"','Content-Type':'application/json'}
+            return response
         s = URLSafeSerializer('project-blood-bank')
-        values=s.loads(head)
+        values=s.loads(head1[1])
         admin = Admin.find_by_id(values[1])
         
         if admin["Email_id"]==values[2]:
