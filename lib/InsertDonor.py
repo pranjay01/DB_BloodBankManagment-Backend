@@ -172,7 +172,7 @@ class UpdateInTable:
         if Operator.check_bankid(single_donor["Operator_id"], single_donor["Bbank_id"]):
             update_query = """UPDATE EMERGENCY_CONTACT_INFO SET Name = %s, WHERE Donor_id =%s 
             AND Phone_no=%s;"""
-            t = (single_donor['Name'], int(single_donor['Donor_id'],int(single_donor['Phone_no'])))
+            t = (single_donor['Name'], int(single_donor['Donor_id']),int(single_donor['Phone_no']))
             try:
                 cursor.execute(update_query, t)
                 db.commit()
