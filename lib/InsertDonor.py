@@ -170,8 +170,9 @@ class UpdateInTable:
         cursor = db.cursor()
 
         if Operator.check_bankid(single_donor["Operator_id"], single_donor["Bbank_id"]):
-            update_query = """UPDATE EMERGENCY_CONTACT_INFO SET Name = %s, WHERE Donor_id =%s ;"""
-            t = (single_donor['Name'], single_donor['Donor_id'])
+            update_query = """UPDATE EMERGENCY_CONTACT_INFO SET Name = %s, WHERE Donor_id =%s 
+            AND Phone_no=%s;"""
+            t = (single_donor['Name'], int(single_donor['Donor_id'],int(single_donor['Phone_no'])))
             try:
                 cursor.execute(update_query, t)
                 db.commit()
@@ -182,13 +183,14 @@ class UpdateInTable:
             # Need to update this based on what Salman is expecting
             t = tuple(single_donor['Emails'].values())
             try:
-                delete_query = f"DELETE FROM EMERGENCY_CONTACT_EMAIL WHERE Donor_id = '{single_donor['Donor_id']}'"
+                delete_query = f"DELETE FROM EMERGENCY_CONTACT_EMAIL WHERE \
+                    Donor_id = {int(single_donor['Donor_id'])} and Phone_no={int(single_donor['Phone_no'])}"
                 cursor.execute(delete_query)
                 db.commit()
                 insert_query = "INSERT INTO EMERGENCY_CONTACT_EMAIL (Phone_no,Donor_id,Email_id)  VALUES (%s,%s,%s)"
                 for x in t:
                     cursor.execute(
-                        insert_query, (single_donor['Phone_no'], single_donor['Donor_id'], x))
+                        insert_query, (int(single_donor['Phone_no']), int(single_donor['Donor_id']), x))
                     db.commit()
             except mysql.Error as err:
                 print("Failed to update donor comtact email entry: {}".format(err))

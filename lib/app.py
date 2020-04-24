@@ -329,7 +329,7 @@ def update_contact():
     if request.method == 'PUT':
         data = request.get_json()
         single_donor = json.loads(data)
-        response = UpdateInTable.donor(single_donor)
+        response = UpdateInTable.donor_contact(single_donor)
         return jsonify(response)
     return jsonify({"status":400,"entry":"Incorrect Method call"})
 
