@@ -327,8 +327,7 @@ def get_donor_econtact_email():
 @app.route('/bloodbank/donor/econtact/update',methods=['GET','POST','DELETE','PUT'])
 def update_contact():
     if request.method == 'PUT':
-        data = request.get_json()
-        single_donor = json.loads(data)
+        single_donor = request.get_json()
         response = UpdateInTable.donor_contact(single_donor)
         return jsonify(response)
     return jsonify({"status":400,"entry":"Incorrect Method call"})
