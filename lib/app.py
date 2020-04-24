@@ -305,8 +305,7 @@ def select_donor():
 @app.route('/bloodbank/donor/econtact',methods=['GET','POST','DELETE','PUT'])
 def add__get_contact():
     if request.method == 'POST':
-        data = request.get_json()
-        single_donor = json.loads(data)
+        single_donor = request.get_json()
         response = InsertInTable.donor_contact(single_donor)
         return jsonify(response)
     if request.method == 'GET':
