@@ -94,7 +94,7 @@ class InsertInTable:
 
             # Need to update this based on what Salman is expecting
 
-            t = tuple(single_donor['Phones'].values())
+            t = tuple(single_donor['Emails'].values())
             insert_query = "INSERT INTO EMERGENCY_CONTACT_EMAIL (Phone_no,Donor_id,Email_id)  VALUES (%s,%s,%s)"
             for x in t:
                 try:
