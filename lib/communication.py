@@ -31,10 +31,14 @@ def send_notification(operator_id,params):
                     (dp.Donor_id=dn.Donor_id) where Notification_Subscription=true \
                         and Notification_Type=%s and Blood_Group=%s and dn.Donor_id  \
                         in (select Donor_id from AFFILIATED where Operator_id=%s)"
-    get_email_list = "select Phone_no from DONOR_PHONE as dp join DONOR as dn on \
-                    (dp.Donor_id=dn.Donor_id) where Notification_Subscription=true \
-                        and Notification_Type=%s and Blood_Group=%s and dn.Donor_id  \
-                        in (select Donor_id from AFFILIATED where Operator_id=%s)"     
+    get_email_list = "SELECT Email_id from DONOR_EMAIL as dp join DONOR \
+                        AS dn on (dp.Donor_id = dn.Donor_id) WHERE \
+                        (Notification_Subscription = '%s' AND Notification_Type='%s'  \
+                        AND Blood_Group='O+' AND dn.Donor_id) in \
+                        (SELECT Donor_id FROM AFFILIATED WHERE Operator_id='%s')"  
+    
+        
+
     
     try:
         db=get_connection()
