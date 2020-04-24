@@ -364,7 +364,7 @@ class SelectInTable:
             i=1
             if result:
                 for row in result:
-                    tmp = {f"Email-{i}":row[0]}
+                    tmp = {f"Email-{i}":row[2]}
                     email_list.update(tmp)
                     i+=1
                 tmp = {"Email_id":email_list}
