@@ -81,10 +81,10 @@ class InsertInTable:
 
         # Remove the single contact field if single_donor json directly sends E contact info
         # single_contact = single_donor['EMERGENCY_CONTACT']
-        if Operator.check_bankid(single_donor["Operator_id"], single_donor["Bbank_id"]):
+        if Operator.check_bankid(single_donor["Operator_id"], int(single_donor["Bbank_id"])):
             insert_query = "INSERT INTO EMERGENCY_CONTACT_INFO (Phone_no,Donor_id,Name)  VALUES (%s,%s,%s)"
-            t = (single_donor['Phone_no'],
-                 single_donor['Donor_id'], single_donor['Name'])
+            t = (int(single_donor['Phone_no']),
+                 int(single_donor['Donor_id']), single_donor['Name'])
             try:
                 cursor.execute(insert_query, t)
                 db.commit()
@@ -99,7 +99,7 @@ class InsertInTable:
             for x in t:
                 try:
                     cursor.execute(
-                        insert_query, (single_donor['Phone_no'], single_donor['Donor_id'], x))
+                        insert_query, (int(single_donor['Phone_no']), int(single_donor['Donor_id']), x))
                     db.commit()
                 except mysql.Error as err:
                     print("Failed to add contact phones entry: {}".format(err))
