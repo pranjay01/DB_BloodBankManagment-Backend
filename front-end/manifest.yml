@@ -1,6 +1,0 @@
----
-applications:
-- name: cmpe-138-blood-bank-management
-  path: .
-  command: npm start
-  memory: 512M
