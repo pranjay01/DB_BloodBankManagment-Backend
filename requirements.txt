@@ -23,5 +23,5 @@ PyJWT==1.4.2
 pylint==2.4.4
 pytz==2019.3
 six==1.14.0
-Werkzeug==1.0.1
+Werkzeug==2.2.3
 wrapt==1.11.2
